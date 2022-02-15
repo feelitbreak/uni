@@ -7,6 +7,8 @@
 4 - 4
 1987659 - 45
 */
+
+//Проверка
 #include <iostream>
 using namespace std;
 int main()
