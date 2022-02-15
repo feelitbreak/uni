@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="16.0.2" class="java.beans.XMLDecoder">
+ <object class="java.util.TreeMap">
+  <void method="put">
+   <string>GA-0001</string>
+   <object class="Driver">
+    <string>Kaledich</string>
+    <string>Tb</string>
+    <int>2</int>
+    <string>Marbelur 1</string>
+    <string>14.08.2002</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>GA-0002</string>
+   <object class="Driver">
+    <string>Lynn</string>
+    <string>CE</string>
+    <int>5</int>
+    <string>Gerasimenko 24</string>
+    <string>31.10.1980</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>GA-0003</string>
+   <object class="Driver">
+    <string>Petrova</string>
+    <string>Tb</string>
+    <int>2</int>
+    <string>Forget-me-not 112</string>
+    <string>17.03.1995</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>GA-0004</string>
+   <object class="Driver">
+    <string>Chebisheva</string>
+    <string>B</string>
+    <int>1</int>
+    <string>Kuybisheva 79</string>
+    <string>12.12.1997</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>GA-0005</string>
+   <object class="Driver">
+    <string>Lee</string>
+    <string>DE</string>
+    <int>6</int>
+    <string>Zaverdlovskaya 64</string>
+    <string>03.03.1964</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>DM-1001</string>
+   <object class="Driver">
+    <string>Ogli-Gafarova</string>
+    <string>D1E</string>
+    <int>2</int>
+    <string>Redsky 52</string>
+    <string>07.06.1997</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>DM-1002</string>
+   <object class="Driver">
+    <string>Verhovenskiy</string>
+    <string>C</string>
+    <int>25</int>
+    <string>Uvahovskaya 65b</string>
+    <string>04.11.1976</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>DM-1003</string>
+   <object class="Driver">
+    <string>Zaytsev</string>
+    <string>D</string>
+    <int>0</int>
+    <string>Elmwood 12/1</string>
+    <string>05.04.2002</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>DM-1004</string>
+   <object class="Driver">
+    <string>Yarkovskiy</string>
+    <string>C1E</string>
+    <int>12</int>
+    <string>Veri Horuzhey 10</string>
+    <string>13.07.1970</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>DU-2001</string>
+   <object class="Driver">
+    <string>Hart</string>
+    <string>Tb</string>
+    <int>10</int>
+    <string>Shorohovskaya 33a</string>
+    <string>21.10.1977</string>
+   </object>
+  </void>
+  <void method="put">
+   <string>DU-2002</string>
+   <object class="Driver">
+    <string>Kiselyova-Timoshenko</string>
+    <string>D</string>
+    <int>3</int>
+    <string>Yervich 89/2</string>
+    <string>11.09.2000</string>
+   </object>
+  </void>
+ </object>
+</java>
