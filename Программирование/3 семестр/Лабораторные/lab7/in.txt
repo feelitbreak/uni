@@ -1,0 +1,7 @@
+6
+Masda 0 50
+LLL 10 40
+fff 20 50
+AA 0 80
+Kaa 50 10
+Rrr 60 5
