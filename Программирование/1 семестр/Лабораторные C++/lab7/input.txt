@@ -1,0 +1,7 @@
+Tomatoes 2,31
+Bananas 0,82
+Potatoes 0,4
+Cucumbers 3
+Beetroot 0,5
+Onions 0,7
+Carrots 0,69

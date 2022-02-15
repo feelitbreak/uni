@@ -1,0 +1,18 @@
+struct Products;
+Products* InsertItem(char*, double, Products*);
+Products* AddElement1(Products*, char*, double, int);
+Products* AddElement2(Products*);
+Products* DeleteElement1(Products*, int);
+Products* DeleteElement2(Products*);
+void Menu2();
+int Search1(Products*, char*);
+int Search2(Products*, double);
+int Search3(Products*);
+Products* Input(void);
+int OutputFile(Products*);
+void OutputConsole(Products*);
+Products* Delete(Products*);
+Products* Switch(Products*, Products*, Products*);
+Products* Sort(Products*);
+void Menu1();
+void Solve();
