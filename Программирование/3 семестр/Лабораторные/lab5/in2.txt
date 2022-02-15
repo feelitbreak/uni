@@ -1,0 +1,6 @@
+<html class="head">  <title> Title </title>
+	<body align="right">
+		<div> <b> Hello, </b></div>
+		<div><b><i> world </i> </b> </div>
+	</body>
+</html>
