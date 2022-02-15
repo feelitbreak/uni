@@ -29,12 +29,24 @@ class Vertex {
     public int getNum() {
         return num;
     }
+
+    @Override
+    public String toString() {
+        return String.valueOf(num);
+    }
+
+    public boolean hasLeft() {
+        return left != null;
+    }
+    public boolean hasRight() {
+        return right != null;
+    }
 }
 
 class Tree {
-    private final Vertex root;
+    private Vertex root;
 
-    public Tree(Vertex root) {
+    public void setRoot(Vertex root) {
         this.root = root;
     }
 
@@ -45,14 +57,14 @@ class Tree {
                 break;
             }
             if (v.getNum() < temp.getNum()) {
-                if (temp.getLeft() != null) {
+                if (temp.hasLeft()) {
                     temp = temp.getLeft();
                 } else {
                     temp.setLeft(v);
                     break;
                 }
             } else {
-                if (temp.getRight() != null) {
+                if (temp.hasRight()) {
                     temp = temp.getRight();
                 } else {
                     temp.setRight(v);
@@ -62,20 +74,45 @@ class Tree {
         }
     }
 
-    public void nlr() {
-
+    public void nlr() throws IOException {
+        FileWriter fw = new FileWriter("output.txt");
+        if(root != null) {
+            fw.write(root.toString());
+            nlrRecursion(root.getLeft(), fw);
+            nlrRecursion(root.getRight(), fw);
+        }
+        fw.close();
+    }
+    private void nlrRecursion(Vertex v, FileWriter fw) throws IOException {
+        if (v != null) {
+            fw.write("\n");
+            fw.write(v.toString());
+            nlrRecursion(v.getLeft(), fw);
+            nlrRecursion(v.getRight(), fw);
+        }
     }
 }
-public class Main {
+public class Main implements Runnable {
 
-    public static void main(String[] args) throws IOException {
-        Scanner sc = new Scanner(new File("input.txt"));
-        Tree myTree = new Tree(new Vertex(sc.nextInt()));
-        while(sc.hasNext()) {
-            Vertex v = new Vertex(sc.nextInt());
-            myTree.addElem(v);
+    public static void main(String[] args) {
+        new Thread(null, new Main(), "", 256 * 1024 * 1024).start();
+    }
+
+    public void run() {
+        try {
+            Scanner sc = new Scanner(new File("input.txt"));
+            Tree myTree = new Tree();
+            if (sc.hasNext()) {
+                myTree.setRoot(new Vertex(sc.nextInt()));
+            }
+            while (sc.hasNext()) {
+                Vertex v = new Vertex(sc.nextInt());
+                myTree.addElem(v);
+            }
+            sc.close();
+            myTree.nlr();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
         }
-        sc.close();
-
     }
 }
