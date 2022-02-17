@@ -30,33 +30,26 @@ class Vertex {
         return num;
     }
 
-    @Override
-    public String toString() {
-        return String.valueOf(num);
+    public boolean hasLeft() {
+        return left != null;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Vertex) {
-            Vertex v = (Vertex) obj;
-            return v.getNum() == num;
-        } else {
-            return false;
-        }
+    public String toString() {
+        return String.valueOf(num);
     }
 }
 
 class Tree {
     private Vertex root;
-    private Vertex[] a;
     boolean answer = true;
-    private int k = 0;
+    private Vertex saved;
 
     public void init() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("bst.in"));
         int n = Integer.parseInt(br.readLine());
         root = new Vertex(Integer.parseInt(br.readLine()));
-        a = new Vertex[n];
+        Vertex[] a = new Vertex[n];
         a[0] = root;
         for (int i = 1; i <= n - 1; i++) {
             String str = br.readLine();
@@ -77,26 +70,25 @@ class Tree {
         return root;
     }
 
-    public void lnr(Vertex v) {
+    public void lnr(Vertex v)  {
         if(v != null) {
             lnr(v.getLeft());
-            a[k] = v;
-            k++;
+            if(saved != null) {
+                if (v.getNum() < saved.getNum()) {
+                    answer = false;
+                    return;
+                }
+                if (v.getNum() == saved.getNum() && (saved.getRight() == null || v.getNum() != findMin(saved.getRight()).getNum())) {
+                    answer = false;
+                    return;
+                }
+            }
+            saved = v;
             lnr(v.getRight());
         }
     }
 
-    public void checkA() throws IOException {
-        for (int i = 1; i < a.length; i++) {
-            if (a[i].getNum() < a[i - 1].getNum()) {
-                answer = false;
-                break;
-            }
-            if (a[i].equals(a[i-1]) && !a[i].equals(a[i-1].getRight())) {
-                answer = false;
-                break;
-            }
-        }
+    public void check() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("bst.out");
         if(answer) {
             pw.print("YES");
@@ -104,6 +96,13 @@ class Tree {
             pw.print("NO");
         }
         pw.close();
+    }
+
+    private Vertex findMin(Vertex r) {
+        while(r.hasLeft()) {
+            r = r.getLeft();
+        }
+        return r;
     }
 }
 
@@ -118,7 +117,7 @@ public class Main implements Runnable {
             Tree myTree = new Tree();
             myTree.init();
             myTree.lnr(myTree.getRoot());
-            myTree.checkA();
+            myTree.check();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
