@@ -37,8 +37,9 @@ class Vertex {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Vertex v) {
-            return v.getNum() == num && v.getRight() == right && v.getLeft() == left;
+        if (obj instanceof Vertex) {
+            Vertex v = (Vertex) obj;
+            return v.getNum() == num;
         } else {
             return false;
         }
@@ -57,7 +58,7 @@ class Tree {
         root = new Vertex(Integer.parseInt(br.readLine()));
         a = new Vertex[n];
         a[0] = root;
-        for (int i = 1; br.ready(); i++) {
+        for (int i = 1; i <= n - 1; i++) {
             String str = br.readLine();
             StringTokenizer st = new StringTokenizer(str, " ");
             Vertex v = new Vertex(Integer.parseInt(st.nextToken()));
@@ -91,7 +92,7 @@ class Tree {
                 answer = false;
                 break;
             }
-            if (a[i].getNum() == a[i-1].getNum() && !a[i-1].getRight().equals(a[i])) {
+            if (a[i].equals(a[i-1]) && !a[i].equals(a[i-1].getRight())) {
                 answer = false;
                 break;
             }
@@ -109,7 +110,7 @@ class Tree {
 public class Main implements Runnable {
 
     public static void main(String[] args) {
-        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+        new Thread(null, new Main(), "", 128 * 1024 * 1024).start();
     }
 
     public void run() {
