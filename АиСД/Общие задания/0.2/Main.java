@@ -45,8 +45,19 @@ class Vertex {
 class Tree {
     private Vertex root;
 
-    public void setRoot(Vertex root) {
-        this.root = root;
+    public int init() throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("input.txt"));
+        int vDel = Integer.parseInt(br.readLine());
+        br.readLine();
+        if (br.ready()) {
+            root = new Vertex(Integer.parseInt(br.readLine()));
+        }
+        while (br.ready()) {
+            Vertex v = new Vertex(Integer.parseInt(br.readLine()));
+            addElem(v);
+        }
+        br.close();
+        return vDel;
     }
 
     public void addElem(Vertex v) {
@@ -191,23 +202,13 @@ class Tree {
 public class Main implements Runnable {
 
     public static void main(String[] args) {
-        new Thread(null, new Main(), "", 256 * 1024 * 1024).start();
+        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
     }
 
     public void run() {
         try {
-            BufferedReader br = new BufferedReader(new FileReader("input.txt"));
             Tree myTree = new Tree();
-            int vDel = Integer.parseInt(br.readLine());
-            br.readLine();
-            if (br.ready()) {
-                myTree.setRoot(new Vertex(Integer.parseInt(br.readLine())));
-            }
-            while (br.ready()) {
-                Vertex v = new Vertex(Integer.parseInt(br.readLine()));
-                myTree.addElem(v);
-            }
-            br.close();
+            int vDel = myTree.init();
             myTree.delElem(vDel);
             myTree.nlr();
         } catch (IOException e) {
