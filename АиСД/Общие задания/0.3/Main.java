@@ -42,26 +42,26 @@ class Vertex {
 
 class Tree {
     private Vertex root;
-    boolean answer = true;
-    private Vertex saved;
+    private Vertex[] mass;
+    private int k = 0;
 
     public void init() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("bst.in"));
         int n = Integer.parseInt(br.readLine());
         root = new Vertex(Integer.parseInt(br.readLine()));
-        Vertex[] a = new Vertex[n];
-        a[0] = root;
+        mass = new Vertex[n];
+        mass[0] = root;
         for (int i = 1; i <= n - 1; i++) {
             String str = br.readLine();
-            StringTokenizer st = new StringTokenizer(str, " ");
+            StringTokenizer st = new StringTokenizer(str);
             Vertex v = new Vertex(Integer.parseInt(st.nextToken()));
             int id = Integer.parseInt(st.nextToken()) - 1;
-            if(st.nextToken().equals("R")) {
-                a[id].setRight(v);
+            if(str.endsWith("R")) {
+                mass[id].setRight(v);
             } else {
-                a[id].setLeft(v);
+                mass[id].setLeft(v);
             }
-            a[i] = v;
+            mass[i] = v;
         }
         br.close();
     }
@@ -73,43 +73,37 @@ class Tree {
     public void lnr(Vertex v)  {
         if(v != null) {
             lnr(v.getLeft());
-            if(saved != null) {
-                if (v.getNum() < saved.getNum()) {
-                    answer = false;
-                    return;
-                }
-                if (v.getNum() == saved.getNum() && (saved.getRight() == null || v.getNum() != findMin(saved.getRight()).getNum())) {
-                    answer = false;
-                    return;
-                }
-            }
-            saved = v;
+            mass[k] = v;
+            k++;
             lnr(v.getRight());
         }
     }
 
-    public void check() throws FileNotFoundException {
+    public void checkMass() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("bst.out");
-        if(answer) {
-            pw.print("YES");
-        } else {
-            pw.print("NO");
-        }
-        pw.close();
-    }
+        String s1 = "NO";
 
-    private Vertex findMin(Vertex r) {
-        while(r.hasLeft()) {
-            r = r.getLeft();
+        for (int i = 1; i < mass.length; i++) {
+                if (mass[i].getNum() < mass[i - 1].getNum()) {
+                    pw.print(s1);
+                    pw.close();
+                    return;
+                }
+                if (mass[i].getNum() == mass[i - 1].getNum() && mass[i].hasLeft()) {
+                    pw.print(s1);
+                    pw.close();
+                    return;
+                }
         }
-        return r;
+        pw.print("YES");
+        pw.close();
     }
 }
 
 public class Main implements Runnable {
 
     public static void main(String[] args) {
-        new Thread(null, new Main(), "", 128 * 1024 * 1024).start();
+        new Thread(null, new Main(), "", 32 * 1024 * 1024).start();
     }
 
     public void run() {
@@ -117,7 +111,7 @@ public class Main implements Runnable {
             Tree myTree = new Tree();
             myTree.init();
             myTree.lnr(myTree.getRoot());
-            myTree.check();
+            myTree.checkMass();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
