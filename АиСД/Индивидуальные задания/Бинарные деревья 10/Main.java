@@ -1,11 +1,11 @@
 import java.io.*;
+import java.util.*;
 
 class Vertex {
     private final int num;
     private Vertex left;
     private Vertex right;
     private int height;
-    private int length;
 
     Vertex(int num) {
         this.num = num;
@@ -39,14 +39,6 @@ class Vertex {
         this.height = height;
     }
 
-    public int getLength() {
-        return length;
-    }
-
-    public void setLength(int length) {
-        this.length = length;
-    }
-
     @Override
     public String toString() {
         return num + " " + height;
@@ -65,7 +57,6 @@ class Tree {
     private int lmax = 0;
     boolean multiple = false;
     Vertex vMain;
-    Vertex[] vDel;
 
     public void init() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("in.txt"));
@@ -192,6 +183,9 @@ class Tree {
         if (v != null) {
             lrn(v.getLeft());
             lrn(v.getRight());
+            if(!v.hasRight() && !v.hasLeft()) {
+                v.setHeight(0);
+            }
             if (!v.hasRight() && v.hasLeft()) {
                 int a = v.getLeft().getHeight() + 1;
                 v.setHeight(a);
@@ -209,7 +203,6 @@ class Tree {
     }
 
     private void checkV(Vertex v, int l) {
-        v.setLength(l);
         if(l > lmax) {
             lmax = l;
             vMain = v;
@@ -223,7 +216,44 @@ class Tree {
     }
 
     public void delete() {
+        List<Vertex> listDel = new ArrayList<>();
+        listDel.add(vMain);
+        if(multiple) {
+            addToDel(listDel, vMain);
+        } else {
+            if (vMain.hasLeft() && vMain.hasRight() && vMain.getRight().getHeight() == vMain.getLeft().getHeight()) {
+                listDel.add(vMain.getLeft());
+                addToDel(listDel, vMain.getLeft());
+                listDel.add(vMain.getRight());
+                addToDel(listDel, vMain.getRight());
+            } else {
+                addToDel(listDel, vMain);
+            }
+        }
+
         
+
+    }
+
+    private void addToDel(List<Vertex> listDel, Vertex temp) {
+        while(true) {
+            if (temp.hasLeft() && temp.hasRight()) {
+                if(temp.getRight().getHeight() > temp.getLeft().getHeight()) {
+                    temp = temp.getRight();
+                } else if(temp.getRight().getHeight() < temp.getLeft().getHeight()) {
+                    temp = temp.getLeft();
+                } else {
+                    break;
+                }
+            } else if (temp.hasLeft()) {
+                temp = temp.getLeft();
+            } else if (temp.hasRight()) {
+                temp = temp.getRight();
+            } else {
+                break;
+            }
+            listDel.add(temp);
+        }
     }
 
     public void nlr(Vertex v, PrintWriter pw) throws IOException {
