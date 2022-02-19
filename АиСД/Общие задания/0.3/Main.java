@@ -2,55 +2,24 @@ import java.io.*;
 import java.util.StringTokenizer;
 
 class Vertex {
-    private final int num;
-    private Vertex left;
-    private Vertex right;
+    public int num;
+    public Vertex left;
+    public Vertex right;
 
     Vertex(int num) {
         this.num = num;
     }
-
-    public Vertex getLeft() {
-        return left;
-    }
-
-    public void setLeft(Vertex left) {
-        this.left = left;
-    }
-
-    public Vertex getRight() {
-        return right;
-    }
-
-    public void setRight(Vertex right) {
-        this.right = right;
-    }
-
-    public int getNum() {
-        return num;
-    }
-
-    public boolean hasLeft() {
-        return left != null;
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(num);
-    }
 }
 
 class Tree {
-    private Vertex root;
-    private Vertex[] mass;
+    public Vertex[] mass;
     private Vertex saved;
-    private int k = 0;
     private boolean answer = true;
 
     public void init() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("bst.in"));
         int n = Integer.parseInt(br.readLine());
-        root = new Vertex(Integer.parseInt(br.readLine()));
+        Vertex root = new Vertex(Integer.parseInt(br.readLine()));
         mass = new Vertex[n];
         mass[0] = root;
         for (int i = 1; i <= n - 1; i++) {
@@ -59,45 +28,40 @@ class Tree {
             Vertex v = new Vertex(Integer.parseInt(st.nextToken()));
             int id = Integer.parseInt(st.nextToken()) - 1;
             if(str.endsWith("R")) {
-                mass[id].setRight(v);
-                if(v.getNum() < mass[id].getNum()) {
+                if(v.num < mass[id].num) {
                     answer = false;
-                    root = null;
+                    mass[0] = null;
                     return;
                 }
+                mass[id].right = v;
             } else {
-                mass[id].setLeft(v);
-                if(v.getNum() >= mass[id].getNum()) {
+                if(v.num >= mass[id].num) {
                     answer = false;
-                    root = null;
+                    mass[0] = null;
                     return;
                 }
+                mass[id].left = v;
             }
             mass[i] = v;
         }
         br.close();
     }
 
-    public Vertex getRoot() {
-        return root;
-    }
-
     public void lnr(Vertex v)  {
         if(v != null) {
-            lnr(v.getLeft());
-            mass[k] = v;
-            if(k >= 1) {
-                if (mass[k].getNum() < mass[k - 1].getNum()) {
+            lnr(v.left);
+            if(saved != null) {
+                if (v.num < saved.num) {
                     answer = false;
                     return;
                 }
-                if (mass[k].getNum() == mass[k - 1].getNum() && mass[k].hasLeft()) {
+                if (v.num == saved.num && v.left != null) {
                     answer = false;
                     return;
                 }
             }
-            k++;
-            lnr(v.getRight());
+            saved = v;
+            lnr(v.right);
         }
     }
 
@@ -124,7 +88,7 @@ public class Main implements Runnable {
         try {
             Tree myTree = new Tree();
             myTree.init();
-            myTree.lnr(myTree.getRoot());
+            myTree.lnr(myTree.mass[0]);
             myTree.checkMass();
         } catch (IOException e) {
             System.out.println(e.getMessage());
