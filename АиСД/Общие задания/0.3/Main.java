@@ -43,7 +43,9 @@ class Vertex {
 class Tree {
     private Vertex root;
     private Vertex[] mass;
+    private Vertex saved;
     private int k = 0;
+    private boolean answer = true;
 
     public void init() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("bst.in"));
@@ -58,8 +60,18 @@ class Tree {
             int id = Integer.parseInt(st.nextToken()) - 1;
             if(str.endsWith("R")) {
                 mass[id].setRight(v);
+                if(v.getNum() < mass[id].getNum()) {
+                    answer = false;
+                    root = null;
+                    return;
+                }
             } else {
                 mass[id].setLeft(v);
+                if(v.getNum() >= mass[id].getNum()) {
+                    answer = false;
+                    root = null;
+                    return;
+                }
             }
             mass[i] = v;
         }
@@ -74,6 +86,16 @@ class Tree {
         if(v != null) {
             lnr(v.getLeft());
             mass[k] = v;
+            if(k >= 1) {
+                if (mass[k].getNum() < mass[k - 1].getNum()) {
+                    answer = false;
+                    return;
+                }
+                if (mass[k].getNum() == mass[k - 1].getNum() && mass[k].hasLeft()) {
+                    answer = false;
+                    return;
+                }
+            }
             k++;
             lnr(v.getRight());
         }
@@ -82,18 +104,10 @@ class Tree {
     public void checkMass() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("bst.out");
         String s1 = "NO";
-
-        for (int i = 1; i < mass.length; i++) {
-                if (mass[i].getNum() < mass[i - 1].getNum()) {
-                    pw.print(s1);
-                    pw.close();
-                    return;
-                }
-                if (mass[i].getNum() == mass[i - 1].getNum() && mass[i].hasLeft()) {
-                    pw.print(s1);
-                    pw.close();
-                    return;
-                }
+        if(!answer) {
+            pw.print(s1);
+            pw.close();
+            return;
         }
         pw.print("YES");
         pw.close();
