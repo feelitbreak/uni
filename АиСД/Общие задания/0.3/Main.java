@@ -1,224 +1,98 @@
 import java.io.*;
-import java.util.StringTokenizer;
 
 class Vertex {
-    private final int num;
-    private Vertex left;
-    private Vertex right;
+    public int num;
+    public int left = -1;
+    public int right = -1;
 
     Vertex(int num) {
         this.num = num;
     }
-
-    public Vertex getLeft() {
-        return left;
-    }
-
-    public void setLeft(Vertex left) {
-        this.left = left;
-    }
-
-    public Vertex getRight() {
-        return right;
-    }
-
-    public void setRight(Vertex right) {
-        this.right = right;
-    }
-
-    public int getNum() {
-        return num;
-    }
-
-    @Override
-    public String toString() {
-        return String.valueOf(num);
-    }
-
-    public boolean hasLeft() {
-        return left != null;
-    }
-    public boolean hasRight() {
-        return right != null;
-    }
 }
 
 class Tree {
-    private Vertex root;
-    private int n;
-    private Vertex[] A;
+    public Vertex[] mass;
+    private int saved = -1;
+    public boolean answer = true;
 
-    public void init() throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("bst.in"));
-        n = Integer.parseInt(br.readLine());
-        root = new Vertex(Integer.parseInt(br.readLine()));
-        A = new Vertex[n];
-        A[0] = root;
-        for (int i = 1; br.ready(); i++) {
-            String str = br.readLine();
-            StringTokenizer st = new StringTokenizer(str, " ");
-            Vertex v = new Vertex(Integer.parseInt(st.nextToken()));
-            int id = Integer.parseInt(st.nextToken()) - 1;
-            if(st.nextToken().equals("R")) {
-                A[id].setRight(v);
+    public Tree() throws IOException {
+        StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("bst.in")));
+        st.ordinaryChar('R');
+        st.nextToken();
+        int n = (int) st.nval;
+        st.nextToken();
+        Vertex root = new Vertex(((int)st.nval));
+        mass = new Vertex[n];
+        mass[0] = root;
+
+        for (int i = 1; i <= n - 1; i++) {
+            st.nextToken();
+            Vertex v = new Vertex((int)st.nval);
+            st.nextToken();
+            int id = (int) st.nval - 1;
+            st.nextToken();
+            if(st.ttype == 'R') {
+                if(v.num < mass[id].num) {
+                    answer = false;
+                    return;
+                }
+                mass[id].right = i;
             } else {
-                A[id].setLeft(v);
-            }
-            A[i] = v;
-        }
-        br.close();
-    }
-
-    public void addElem(Vertex v) {
-        Vertex temp = root;
-        while(true) {
-            if (v.getNum() == temp.getNum()) {
-                break;
-            }
-            if (v.getNum() < temp.getNum()) {
-                if (temp.hasLeft()) {
-                    temp = temp.getLeft();
-                } else {
-                    temp.setLeft(v);
-                    break;
+                if(v.num >= mass[id].num) {
+                    answer = false;
+                    return;
                 }
-            } else {
-                if (temp.hasRight()) {
-                    temp = temp.getRight();
-                } else {
-                    temp.setRight(v);
-                    break;
-                }
+                mass[id].left = i;
             }
+            mass[i] = v;
         }
     }
 
-    public void delElem(int num) {
-        Vertex parent = root;
-        Vertex vDel = null;
-        boolean isLeft = false;
-        boolean isRight = false;
-        while(true) {
-            if(num > parent.getNum() && parent.hasRight() && num == parent.getRight().getNum()) {
-                vDel = parent.getRight();
-                isRight = true;
-                break;
-            } else if(num > parent.getNum() && parent.hasRight()) {
-                parent = parent.getRight();
-            } else if(num > parent.getNum()) {
-                break;
-            } else if (num < parent.getNum() && parent.hasLeft() && num == parent.getLeft().getNum()) {
-                    vDel = parent.getLeft();
-                    isLeft = true;
-                    break;
-            } else if (num < parent.getNum() && parent.hasLeft()) {
-                parent = parent.getLeft();
-            } else if(num < parent.getNum()) {
-                break;
-            } else {
-                vDel = parent;
-                break;
+    public void lnr(int v) {
+        if (answer) {
+            if(saved == -1) {
+                saved = 0;
+                return;
             }
-        }
-
-        if(vDel != null) {
-            if(!vDel.hasLeft() && !vDel.hasRight() && isLeft) {
-                parent.setLeft(null);
-            } else if(!vDel.hasLeft() && !vDel.hasRight() && isRight) {
-                parent.setRight(null);
-            } else if(!vDel.hasLeft() && !vDel.hasRight()){
-                root = null;
-            } else if(vDel.hasLeft() && !vDel.hasRight() && isLeft) {
-                parent.setLeft(vDel.getLeft());
-            } else if(vDel.hasLeft() && !vDel.hasRight() && isRight) {
-                parent.setRight(vDel.getLeft());
-            } else if(vDel.hasLeft() && !vDel.hasRight()) {
-                root = root.getLeft();
-            } else if(!vDel.hasLeft() && vDel.hasRight() && isLeft) {
-                parent.setLeft(vDel.getRight());
-            } else if(!vDel.hasLeft() && vDel.hasRight() && isRight) {
-                parent.setRight(vDel.getRight());
-            } else if(!vDel.hasLeft() && vDel.hasRight()) {
-                root = root.getRight();
-            } else if(isRight) {
-                if (vDel.getRight().hasLeft()) {
-                    Vertex newV = findMin(vDel.getRight());
-                    newV.setLeft(vDel.getLeft());
-                    newV.setRight(vDel.getRight());
-                    parent.setRight(newV);
-                } else {
-                    vDel.getRight().setLeft(vDel.getLeft());
-                    parent.setRight(vDel.getRight());
+            if (mass[v].left != -1) {
+                lnr(mass[v].left);
+            }
+            if (saved != -1) {
+                if (mass[v].num < mass[saved].num) {
+                    answer = false;
+                    return;
                 }
-            } else if(isLeft) {
-                if (vDel.getRight().hasLeft()) {
-                    Vertex newV = findMin(vDel.getRight());
-                    newV.setLeft(vDel.getLeft());
-                    newV.setRight(vDel.getRight());
-                    parent.setLeft(newV);
-                } else {
-                    vDel.getRight().setLeft(vDel.getLeft());
-                    parent.setLeft(vDel.getRight());
-                }
-            } else {
-                if (vDel.getRight().hasLeft()) {
-                    Vertex newV = findMin(vDel.getRight());
-                    newV.setLeft(vDel.getLeft());
-                    newV.setRight(vDel.getRight());
-                    root = newV;
-                } else {
-                    vDel.getRight().setLeft(vDel.getLeft());
-                    root = vDel.getRight();
+                if (mass[v].num == mass[saved].num && mass[v].left != -1) {
+                    answer = false;
+                    return;
                 }
             }
+            saved = v;
+            if (mass[v].right != -1) {
+                lnr(mass[v].right);
+            }
         }
-    }
-
-    public void nlr() throws IOException {
-        FileWriter fw = new FileWriter("bst.out");
-        if(root != null) {
-            fw.write(root.toString());
-            nlrRecursion(root.getLeft(), fw);
-            nlrRecursion(root.getRight(), fw);
-        }
-        fw.close();
-    }
-    private void nlrRecursion(Vertex v, FileWriter fw) throws IOException {
-        if (v != null) {
-            fw.write("\n");
-            fw.write(v.toString());
-            nlrRecursion(v.getLeft(), fw);
-            nlrRecursion(v.getRight(), fw);
-        }
-    }
-
-    private Vertex findMin(Vertex r) {
-        Vertex temp;
-        temp = r.getLeft();
-        while(temp.hasLeft()) {
-            r = temp;
-            temp = temp.getLeft();
-        }
-        if(temp.hasRight()) {
-            r.setLeft(temp.getRight());
-        } else {
-            r.setLeft(null);
-        }
-        return temp;
     }
 }
 
 public class Main implements Runnable {
 
     public static void main(String[] args) {
-        new Thread(null, new Main(), "", 64 * 1024 * 1024).start();
+        new Thread(null, new Main(), "", 32 * 1024 * 1024).start();
     }
 
     public void run() {
         try {
             Tree myTree = new Tree();
-            myTree.init();
-            myTree.nlr();
+            myTree.lnr(0);
+            PrintWriter pw = new PrintWriter("bst.out");
+            if(!myTree.answer) {
+                pw.print("NO");
+                pw.close();
+                return;
+            }
+            pw.print("YES");
+            pw.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
