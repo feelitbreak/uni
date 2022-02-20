@@ -1,5 +1,8 @@
 import java.io.*;
+import java.util.*;
 
+//Пожалуйста, Джава, потрать меньше памяти :( Я знаю я написали прошлую попытку на C++, и я извиняюсь, ты заслуживаешь большего.
+//Пожалуйста, дай мне еще один шанс.
 class Vertex {
     public int num;
     public int left = -1;
@@ -12,7 +15,6 @@ class Vertex {
 
 class Tree {
     public Vertex[] mass;
-    private int saved = -1;
     public boolean answer = true;
 
     public Tree() throws IOException {
@@ -48,53 +50,54 @@ class Tree {
         }
     }
 
-    public void lnr(int v) {
-        if (answer) {
-            if(saved == -1) {
-                saved = 0;
-                return;
+    public void myLnr() {
+        Stack<Vertex> st = new Stack<>();
+        Vertex tmp = mass[0];
+        Vertex save = null;
+        while(tmp != null || !st.empty()) {
+            while(tmp != null) {
+                st.push(tmp);
+                if(tmp.left != -1) {
+                    tmp = mass[tmp.left];
+                } else {
+                    tmp = null;
+                }
             }
-            if (mass[v].left != -1) {
-                lnr(mass[v].left);
-            }
-            if (saved != -1) {
-                if (mass[v].num < mass[saved].num) {
+            tmp = st.pop();
+
+            if (save != null) {
+                if (tmp.num < save.num) {
                     answer = false;
                     return;
                 }
-                if (mass[v].num == mass[saved].num && mass[v].left != -1) {
+                if (tmp.num == save.num && tmp.left != -1) {
                     answer = false;
                     return;
                 }
             }
-            saved = v;
-            if (mass[v].right != -1) {
-                lnr(mass[v].right);
+            save = tmp;
+
+            if(tmp.right != -1) {
+                tmp = mass[tmp.right];
+            } else {
+                tmp = null;
             }
         }
     }
 }
 
-public class Main implements Runnable {
+public class Main {
 
-    public static void main(String[] args) {
-        new Thread(null, new Main(), "", 32 * 1024 * 1024).start();
-    }
-
-    public void run() {
-        try {
-            Tree myTree = new Tree();
-            myTree.lnr(0);
-            PrintWriter pw = new PrintWriter("bst.out");
-            if(!myTree.answer) {
-                pw.print("NO");
-                pw.close();
-                return;
-            }
-            pw.print("YES");
+    public static void main(String[] args) throws IOException {
+        Tree myTree = new Tree();
+        myTree.myLnr();
+        PrintWriter pw = new PrintWriter("bst.out");
+        if(!myTree.answer) {
+            pw.print("NO");
             pw.close();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
+            return;
         }
+        pw.print("YES");
+        pw.close();
     }
 }
