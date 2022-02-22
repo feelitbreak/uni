@@ -1,11 +1,11 @@
 import java.io.*;
-import java.util.*;
 
 class Vertex {
     private final int num;
     private Vertex left;
     private Vertex right;
     private int height;
+    private boolean delete = false;
 
     Vertex(int num) {
         this.num = num;
@@ -39,9 +39,17 @@ class Vertex {
         this.height = height;
     }
 
+    public boolean isDelete() {
+        return delete;
+    }
+
+    public void setDelete(boolean delete) {
+        this.delete = delete;
+    }
+
     @Override
     public String toString() {
-        return num + " " + height;
+        return String.valueOf(num);
     }
 
     public boolean hasLeft() {
@@ -202,6 +210,16 @@ class Tree {
         }
     }
 
+    private void lrn2(Vertex v) {
+        if (v != null) {
+            lrn2(v.getLeft());
+            lrn2(v.getRight());
+            if(v.isDelete()) {
+                delElem(v.getNum());
+            }
+        }
+    }
+
     private void checkV(Vertex v, int l) {
         if(l > lmax) {
             lmax = l;
@@ -216,26 +234,24 @@ class Tree {
     }
 
     public void delete() {
-        List<Vertex> listDel = new ArrayList<>();
-        listDel.add(vMain);
+        vMain.setDelete(true);
         if(multiple) {
-            addToDel(listDel, vMain);
+            addToDel(vMain);
         } else {
-            if (vMain.hasLeft() && vMain.hasRight() && vMain.getRight().getHeight() == vMain.getLeft().getHeight()) {
-                listDel.add(vMain.getLeft());
-                addToDel(listDel, vMain.getLeft());
-                listDel.add(vMain.getRight());
-                addToDel(listDel, vMain.getRight());
+            if (vMain.hasLeft() && vMain.hasRight()) {
+                vMain.getLeft().setDelete(true);
+                addToDel(vMain.getLeft());
+                vMain.getRight().setDelete(true);
+                addToDel(vMain.getRight());
             } else {
-                addToDel(listDel, vMain);
+                addToDel(vMain);
             }
         }
 
-        
-
+        lrn2(vMain);
     }
 
-    private void addToDel(List<Vertex> listDel, Vertex temp) {
+    private void addToDel(Vertex temp) {
         while(true) {
             if (temp.hasLeft() && temp.hasRight()) {
                 if(temp.getRight().getHeight() > temp.getLeft().getHeight()) {
@@ -252,7 +268,7 @@ class Tree {
             } else {
                 break;
             }
-            listDel.add(temp);
+            temp.setDelete(true);
         }
     }
 
