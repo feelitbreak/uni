@@ -67,7 +67,7 @@ class BinarySearch {
                 }
             }
         }
-        blr.b = (l1 < n) && mass[l1] == a;
+        blr.b = l1 != r2;
         blr.l = l1;
         blr.r = r2;
         return blr;
