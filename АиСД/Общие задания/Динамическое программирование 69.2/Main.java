@@ -1,8 +1,8 @@
 import java.io.*;
 
 class Frog {
-    private int[] mosquitoes;
-    private int[] sol;
+    private final int[] mosquitoes;
+    private final int[] sol;
 
     public Frog() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));
@@ -16,6 +16,7 @@ class Frog {
         }
         sol = new int[n];
     }
+
     public void formSol() {
         sol[0] = mosquitoes[0];
         if(sol.length > 1) {
@@ -26,19 +27,30 @@ class Frog {
         }
         for(int i = 3; i < sol.length; i++) {
             if (sol[i - 3] > sol[i - 2]) {
-                sol[i] = sol[i - 3] + mosquitoes[3];
+                sol[i] = sol[i - 3] + mosquitoes[i];
             } else {
-                sol[i] = sol[i - 2] + mosquitoes[3];
-                sol[i - 3] = -1;
+                sol[i] = sol[i - 2] + mosquitoes[i];
+                if (i != sol.length - 2) {
+                    sol[i - 3] = -1;
+                }
             }
         }
         if(sol.length > 1) {
             sol[sol.length - 2] = -1;
         }
     }
-    
-    public void out() {
 
+    public void out() {
+        System.out.println(sol[sol.length - 1]);
+        if(sol[0] != -1) {
+            System.out.print(1);
+            for (int i = 1; i < sol.length; i++) {
+                if (sol[i] != -1) {
+                    System.out.print(" ");
+                    System.out.print(i + 1);
+                }
+            }
+        }
     }
 }
 
@@ -47,5 +59,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Frog frog = new Frog();
         frog.formSol();
+        frog.out();
     }
 }
