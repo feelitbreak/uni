@@ -30,9 +30,6 @@ class Frog {
                 sol[i] = sol[i - 3] + mosquitoes[i];
             } else {
                 sol[i] = sol[i - 2] + mosquitoes[i];
-                if (i != sol.length - 2) {
-                    sol[i - 3] = -1;
-                }
             }
         }
         if(sol.length > 1) {
@@ -43,12 +40,29 @@ class Frog {
     public void out() {
         System.out.println(sol[sol.length - 1]);
         if(sol[0] != -1) {
-            System.out.print(1);
-            for (int i = 1; i < sol.length; i++) {
-                if (sol[i] != -1) {
-                    System.out.print(" ");
-                    System.out.print(i + 1);
+            int k = 1;
+            mosquitoes[0] = sol.length;
+            for(int i = sol.length - 1; true; ) {
+                if(i > 2) {
+                    if (sol[i - 3] > sol[i - 2]) {
+                        i -= 3;
+                    } else {
+                        i -= 2;
+                    }
+                    mosquitoes[k] = i + 1;
+                    k++;
+                } else if (i == 2) {
+                    mosquitoes[k] = 1;
+                    k++;
+                    break;
+                } else {
+                    break;
                 }
+            }
+            System.out.print(mosquitoes[k - 1]);
+            for(int i = k - 2; i >= 0; i--) {
+                System.out.print(" ");
+                System.out.print(mosquitoes[i]);
             }
         }
     }
