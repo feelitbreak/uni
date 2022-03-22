@@ -4,6 +4,7 @@ class Ones {
     private final int k;
     private final int n;
     private final int[][] sol;
+    private final static int MOD = 1000000007;
 
     public Ones() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new InputStreamReader(System.in)));
@@ -26,7 +27,7 @@ class Ones {
         for(int i = 1; i <= n; i++) {
             for(int j = 1; j <= i - 1; j++) {
                 sol[i][j] = sol[i - 1][j - 1] + sol[i - 1][j];
-                sol[i][j] %= 1000000007;
+                sol[i][j] %= MOD;
             }
         }
     }
