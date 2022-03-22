@@ -13,8 +13,8 @@ class Ones {
         k = (int) st.nval;
     }
 
-    private int fact(int num) {
-        int res = 1;
+    private long fact(long num) {
+        long res = 1;
         for (int i = 2; i <= num; i++) {
             res *= i % MOD;
             res %= MOD;
