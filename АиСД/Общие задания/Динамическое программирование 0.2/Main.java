@@ -26,9 +26,7 @@ class Ones {
         for(int i = 1; i <= n; i++) {
             for(int j = 1; j <= i - 1; j++) {
                 sol[i][j] = sol[i - 1][j - 1] + sol[i - 1][j];
-                while (sol[i][j] >= 1000000007) {
-                    sol[i][j] -= 1000000007;
-                }
+                sol[i][j] %= 1000000007;
             }
         }
     }
