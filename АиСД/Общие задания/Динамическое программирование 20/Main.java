@@ -43,7 +43,7 @@ class Palindrome {
         int len = sol[i][j] / 2;
         char[] pal = new char[len];
         int k = 0;
-        while(i != j) {
+        while(j > i) {
             if(s.charAt(i) == s.charAt(j)) {
                 pal[k] = s.charAt(i);
                 fw.write(pal[k]);
@@ -56,7 +56,9 @@ class Palindrome {
                 j--;
             }
         }
-        fw.write(sol[i][i]);
+        if(i == j) {
+            fw.write(sol[i][i]);
+        }
         for(int l = len - 1; l >= 0; l--) {
             fw.write(pal[l]);
         }
