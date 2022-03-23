@@ -12,7 +12,7 @@ class Matrix {
         nm = new int[s + 1];
         st.nextToken();
         nm[0] = (int) st.nval;
-        for(int i = 0; i < s; i++) {
+        for(int i = 1; i < s + 1; i++) {
             st.nextToken();
             nm[i] = (int) st.nval;
             st.nextToken();
