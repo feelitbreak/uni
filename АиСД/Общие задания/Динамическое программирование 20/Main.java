@@ -57,7 +57,7 @@ class Palindrome {
             }
         }
         if(i == j) {
-            fw.write(sol[i][i]);
+            fw.write(s.charAt(i));
         }
         for(int l = len - 1; l >= 0; l--) {
             fw.write(pal[l]);
