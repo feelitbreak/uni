@@ -37,6 +37,29 @@ class Palindrome {
     public void out() throws IOException {
         FileWriter fw = new FileWriter("output.txt");
         fw.write(String.valueOf(sol[0][s.length() - 1]));
+        fw.write('\n');
+        int i = 0;
+        int j = s.length() - 1;
+        int len = sol[i][j] / 2;
+        char[] pal = new char[len];
+        int k = 0;
+        while(i != j) {
+            if(s.charAt(i) == s.charAt(j)) {
+                pal[k] = s.charAt(i);
+                fw.write(pal[k]);
+                k++;
+                i++;
+                j--;
+            } else if(sol[i + 1][j] > sol[i][j - 1]) {
+                i++;
+            } else {
+                j--;
+            }
+        }
+        fw.write(sol[i][i]);
+        for(int l = len - 1; l >= 0; l--) {
+            fw.write(pal[l]);
+        }
         fw.close();
     }
 }
