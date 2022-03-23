@@ -33,7 +33,7 @@ class Matrix {
                 else {
                     long temp;
                     sol[i][j] = Long.MAX_VALUE;
-                    for (int k = i; k <= j; k++) {
+                    for (int k = i; k < j; k++) {
                         temp = sol[i][k] + sol[k + 1][j] + (long) nm[i] * nm[k + 1] * nm[j + 1];
                         if(temp < sol[i][j]) {
                             sol[i][j] = temp;
