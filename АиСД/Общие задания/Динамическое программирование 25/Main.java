@@ -33,7 +33,7 @@ class Transform {
         for(int i = 1; i <= a.length(); i++) {
             for(int j = 1; j <= b.length(); j++) {
                 sol[i][j] = sol[i - 1][j - 1];
-                if(a.charAt(i) != b.charAt(j)) {
+                if(a.charAt(i - 1) != b.charAt(j - 1)) {
                     sol[i][j] += z;
                 }
                 int c;
