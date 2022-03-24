@@ -29,7 +29,7 @@ class Sequence {
                 sol[k] = num;
             } else {
                 int i = upperBound(num);
-                if(i != k + 1) {
+                if(i == 0 || sol[i - 1] != num) {
                     sol[i] = num;
                 }
             }
