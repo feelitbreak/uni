@@ -24,14 +24,14 @@ class Transform {
     }
 
     public void formSol() {
-        for(int i = 0; i < a.length(); i++) {
+        for(int i = 0; i <= a.length(); i++) {
             sol[i][0] = i * x;
         }
-        for(int i = 0; i < b.length(); i++) {
+        for(int i = 0; i <= b.length(); i++) {
             sol[0][i] = i * y;
         }
-        for(int i = 1; i < a.length(); i++) {
-            for(int j = 1; j < b.length(); j++) {
+        for(int i = 1; i <= a.length(); i++) {
+            for(int j = 1; j <= b.length(); j++) {
                 sol[i][j] = sol[i - 1][j - 1];
                 if(a.charAt(i) != b.charAt(j)) {
                     sol[i][j] += z;
