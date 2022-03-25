@@ -3,28 +3,28 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 class Vertex {
-    private final int num;
+    private final long num;
 
-    Vertex(int num) {
+    Vertex(long num) {
         this.num = num;
     }
 
-    public int getNum() {
+    public long getNum() {
         return num;
     }
 }
 
 class Huffman {
-    private int answer = 0;
+    private long answer = 0;
 
     public Huffman() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("huffman.in")));
         st.nextToken();
         int n = (int) st.nval;
-        PriorityQueue<Vertex> pq = new PriorityQueue<>(Comparator.comparingInt(Vertex::getNum));
+        PriorityQueue<Vertex> pq = new PriorityQueue<>(Comparator.comparingLong(Vertex::getNum));
         for(int i = 0; i < n; i++) {
             st.nextToken();
-            Vertex v = new Vertex((int) st.nval);
+            Vertex v = new Vertex((long) st.nval);
             pq.add(v);
         }
         while(pq.size() > 1) {
