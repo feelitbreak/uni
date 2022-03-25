@@ -18,7 +18,7 @@ class Heap {
 
     public void check() {
         for(int i = 1; i < n; i++) {
-            if(mass[i] > mass[(i - 1) / 2]) {
+            if(mass[i] < mass[(i - 1) / 2]) {
                 answer = false;
                 break;
             }
