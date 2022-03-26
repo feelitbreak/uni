@@ -7,10 +7,6 @@ public class Equation {
     private final static double E2 = 0.1;
     private double x0;
 
-    public Equation() {
-
-    }
-
     public void bisection() {
         Formatter fmt = new Formatter();
         fmt.format("%3s %8s %8s %8s %8s %14s %8s\n", "k", "ak", "bk", "f(ak)", "f(bk)", "(ak + bk) / 2", "bk - ak");
