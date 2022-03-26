@@ -38,8 +38,8 @@ public class Equation {
 
     public void methods() {
         Formatter fmt = new Formatter();
-        fmt.format("%8s %23s %23s %23s\n", "Итерация", "МПИ", "Метод Ньютона", "Метод секущих");
-        fmt.format("%8s %11s %11s %11s %11s %11s %11s\n", "k", "xk", "|xk - xk-1|", "xk", "|xk - xk-1|" , "xk", "|xk - xk-1|");
+        fmt.format("%8s %18s              %26s      %26s     \n", "Итерация", "МПИ", "Метод Ньютона", "Метод секущих");
+        fmt.format("%4s     %10s      %15s %10s      %15s %10s      %15s\n", "k", "xk", "|xk - xk-1|", "xk", "|xk - xk-1|" , "xk", "|xk - xk-1|");
         double fpi1 = x0;
         double fpi2 = phiFpi(x0);
         double nwt1 = x0;
@@ -48,31 +48,31 @@ public class Equation {
         double sec2 = fpi2;
         double sec3 = phiSecant(sec2, sec1);
         int k = 1;
-        while(Math.abs(fpi2 - fpi1) >= E1 && Math.abs(nwt2 - nwt1) >= E1 && Math.abs(sec3 - sec2) >= E1) {
-            fmt.format("%8d ", k);
+        fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, fpi2, Math.abs(fpi2 - fpi1), nwt2, Math.abs(nwt2 - nwt1), sec2, Math.abs(sec2 - sec1));
+        k++;
+        while(Math.abs(fpi2 - fpi1) >= E1 || Math.abs(nwt2 - nwt1) >= E1 || Math.abs(sec3 - sec2) >= E1) {
+            fmt.format("%4d     ", k);
             if(Math.abs(fpi2 - fpi1) >= E1) {
-                fmt.format("% 11.8f % 11.8f ", fpi2, Math.abs(fpi2 - fpi1));
                 fpi1 = fpi2;
                 fpi2 = phiFpi(fpi2);
+                fmt.format("% 15.12f % 15.12f ", fpi2, Math.abs(fpi2 - fpi1));
             } else {
-                fmt.format("%24c", ' ');
+                fmt.format("%32c", ' ');
             }
             if (Math.abs(nwt2 - nwt1) >= E1) {
-                fmt.format("% 11.8f % 11.8f ", nwt2, Math.abs(nwt2 - nwt1));
                 nwt1 = nwt2;
                 nwt2 = phiNewton(nwt2);
+                fmt.format("% 15.12f % 15.12f ", nwt2, Math.abs(nwt2 - nwt1));
             } else {
-                fmt.format("%24c", ' ');
+                fmt.format("%32c", ' ');
             }
-            if(Math.abs(sec3 - sec2) >= E1 && k > 1) {
-                fmt.format("% 11.8f % 11.8f\n", sec3, Math.abs(sec3 - sec2));
+            if(Math.abs(sec3 - sec2) >= E1) {
                 sec1 = sec2;
                 sec2 = sec3;
                 sec3 = phiSecant(sec3, sec1);
-            } else if(k == 1) {
-                fmt.format("% 11.8f % 11.8f\n", sec2, Math.abs(sec2 - sec1));
+                fmt.format("% 15.12f % 15.12f\n", sec3, Math.abs(sec3 - sec2));
             } else {
-                fmt.format("%23c\n", ' ');
+                fmt.format("%31c\n", ' ');
             }
             k++;
         }
