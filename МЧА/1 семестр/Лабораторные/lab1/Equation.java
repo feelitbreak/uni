@@ -8,6 +8,7 @@ public class Equation {
     private double x0;
 
     public void bisection() {
+        //Метод половинного деления
         Formatter fmt = new Formatter();
         fmt.format("%3s %8s %8s %8s %8s %14s %8s\n", "k", "ak", "bk", "f(ak)", "f(bk)", "(ak + bk) / 2", "bk - ak");
         double xK;
@@ -29,6 +30,7 @@ public class Equation {
     }
 
     private double f(double x) {
+        //Функция f(x)
         return Math.cos(x) + 0.25 * x - 0.5;
     }
 
@@ -47,6 +49,7 @@ public class Equation {
         fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, fpi2, Math.abs(fpi2 - fpi1), nwt2, Math.abs(nwt2 - nwt1), sec2, Math.abs(sec2 - sec1));
         k++;
         while(Math.abs(fpi2 - fpi1) >= E1 || Math.abs(nwt2 - nwt1) >= E1 || Math.abs(sec3 - sec2) >= E1) {
+            //МПИ
             fmt.format("%4d     ", k);
             if(Math.abs(fpi2 - fpi1) >= E1) {
                 fpi1 = fpi2;
@@ -55,6 +58,7 @@ public class Equation {
             } else {
                 fmt.format("%32c", ' ');
             }
+            //Метод Ньютона
             if (Math.abs(nwt2 - nwt1) >= E1) {
                 nwt1 = nwt2;
                 nwt2 = phiNewton(nwt2);
@@ -62,6 +66,7 @@ public class Equation {
             } else {
                 fmt.format("%32c", ' ');
             }
+            //Метод секущих
             if(Math.abs(sec3 - sec2) >= E1) {
                 sec1 = sec2;
                 sec2 = sec3;
@@ -77,12 +82,15 @@ public class Equation {
     }
 
     private double phiFpi(double x) {
+        //Функция фи МПИ
         return x - 0.9 * f(x);
     }
     private double phiNewton(double x) {
+        //Функция фи метода Ньютона
         return x - f(x) / (- Math.sin(x) + 0.25);
     }
     private double phiSecant(double x2, double x1) {
+        //Функция фи метода секущих
         return x2 - f(x2) * (x2 - x1) / (f(x2) - f(x1));
     }
 }
