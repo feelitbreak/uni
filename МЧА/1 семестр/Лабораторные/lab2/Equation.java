@@ -3,6 +3,8 @@ import java.util.*;
 public class Equation {
     private final static double E = 0.000001;
     private final double[] x0;
+    private double[] nwtX;
+    private double[] secX;
 
     public Equation() {
         x0 = new double[2];
@@ -83,8 +85,18 @@ public class Equation {
             }
             k++;
         }
+        nwtX = nwt2;
+        secX = sec3;
         System.out.print(fmt);
         fmt.close();
+    }
+
+    public void outNwt() {
+        System.out.println(maxNorm(f(nwtX[0], nwtX[1])));
+    }
+
+    public void outSec() {
+        System.out.println(maxNorm(f(secX[0], secX[1])));
     }
 
     private double[] gauss(double[][] a, double[] f) throws NumberFormatException {
