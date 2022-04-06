@@ -5,6 +5,7 @@ public class Equation {
     private final double[] x0;
     private double[] nwtX;
     private double[] secX;
+    private final static int K_MAX = 100;
 
     public Equation() {
         x0 = new double[2];
@@ -104,12 +105,12 @@ public class Equation {
         Formatter fmt = new Formatter();
         fmt.format("%8s %31s                  \n", "Итерация", "Метод Гаусса-Зейделя");
         fmt.format("%4s     %10s      %10s      %13s   \n", "k", "x1k", "x2k", "||f(xk)||");
-        double[] gs1 = Arrays.copyOf(new double[]{4.84, 5.34}, 2);
-        double[] gs2 = Arrays.copyOf(new double[]{4.84, 5.34}, 2);
+        double[] gs1 = Arrays.copyOf(x0, 2);
+        double[] gs2 = Arrays.copyOf(x0, 2);
         int k = 0;
         fmt.format("%4d     % 15.12f % 15.12f % 15.12f\n", k, gs1[0], gs1[1], maxNorm(f(gs1[0], gs1[1])));
         k++;
-        while(maxNorm(f(gs2[0], gs2[1])) >= E) {
+        while(maxNorm(f(gs2[0], gs2[1])) >= E && k < K_MAX) {
             fmt.format("%4d     ", k);
             if (k != 1) {
                 gs1 = Arrays.copyOf(gs2, 2);
@@ -137,6 +138,9 @@ public class Equation {
         }
         System.out.print(fmt);
         fmt.close();
+        if(k == K_MAX) {
+            System.out.println("Ошибка. Метод расходится.");
+        }
     }
 
     private double df1(double x1, double x2) {
