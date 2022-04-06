@@ -8,5 +8,7 @@ public class Main {
         myEquation.outNwt();
         System.out.print("Метод секущих, ||f(xn)||: ");
         myEquation.outSec();
+        System.out.println("Таблица 2:");
+        myEquation.gaussSeidel();
     }
 }

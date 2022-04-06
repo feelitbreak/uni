@@ -59,8 +59,8 @@ public class Equation {
         fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, nwt2[0], nwt2[1], maxNorm(nwtDx), sec2[0], sec2[0], maxNorm(secDx));
         k++;
         while(maxNorm(nwtDx) >= E || maxNorm(secDx) >= E) {
-            //МПИ
             fmt.format("%4d     ", k);
+            //Метод Ньютона
             if(maxNorm(nwtDx) >= E) {
                 nwt1 = nwt2;
                 nwtDx = gauss(df(nwt1), f(nwt1[0], nwt1[1]));
@@ -99,6 +99,56 @@ public class Equation {
         System.out.println(maxNorm(f(secX[0], secX[1])));
     }
 
+    public void gaussSeidel() {
+        //Метод Гаусса-Зейделя
+        Formatter fmt = new Formatter();
+        fmt.format("%8s %31s                  \n", "Итерация", "Метод Гаусса-Зейделя");
+        fmt.format("%4s     %10s      %10s      %13s   \n", "k", "x1k", "x2k", "||f(xk)||");
+        double[] gs1 = Arrays.copyOf(new double[]{4.84, 5.34}, 2);
+        double[] gs2 = Arrays.copyOf(new double[]{4.84, 5.34}, 2);
+        int k = 0;
+        fmt.format("%4d     % 15.12f % 15.12f % 15.12f\n", k, gs1[0], gs1[1], maxNorm(f(gs1[0], gs1[1])));
+        k++;
+        while(maxNorm(f(gs2[0], gs2[1])) >= E) {
+            fmt.format("%4d     ", k);
+            if (k != 1) {
+                gs1 = Arrays.copyOf(gs2, 2);
+            }
+
+            double x1, x2;
+            x1 = gs1[0];
+            x2 = x1 - (- f(x1, gs1[1])[0] / df1(x1, gs1[1]));
+            while(Math.abs(x2 - x1) >= E) {
+                x1 = x2;
+                x2 = x1 - (- f(x1, gs1[1])[0] / df1(x1, gs1[1]));
+            }
+            gs2[0] = x2;
+
+            x1 = gs1[1];
+            x2 = x1 - (- f(gs2[0], x1)[1] / df2(gs2[0], x1));
+            while(Math.abs(x2 - x1) >= E) {
+                x1 = x2;
+                x2 = x1 - (- f(gs2[0], x1)[1] / df2(gs2[0], x1));
+            }
+            gs2[1] = x2;
+
+            fmt.format("% 15.12f % 15.12f % 15.12f\n", gs2[0], gs2[1], maxNorm(f(gs2[0], gs2[1])));
+            k++;
+        }
+        System.out.print(fmt);
+        fmt.close();
+    }
+
+    private double df1(double x1, double x2) {
+        //df1 по x1
+        return Math.cos(x1 + 2 * x2) - 1;
+    }
+
+    private double df2(double x1, double x2) {
+        //df2 по x2
+        return x1 - 8 * x2;
+    }
+
     private double[] gauss(double[][] a, double[] f) throws NumberFormatException {
         //Метод Гаусса
         double max;
@@ -118,8 +168,8 @@ public class Equation {
                 }
             }
             //Проверка на невозможность применения
-            if (max == 0.00000001) {
-                System.out.println("Error. Division by zero.");
+            if (max == Double.MIN_VALUE) {
+                System.out.println("Ошибка. Деление на ноль.");
                 throw new NumberFormatException();
             }
             //Перестановка строк
