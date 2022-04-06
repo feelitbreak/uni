@@ -40,7 +40,7 @@ public class Equation {
 
     public void methods() throws NumberFormatException {
         Formatter fmt = new Formatter();
-        fmt.format("%8s %26s     %26s     \n", "Итерация", "Метод Ньютона", "Метод секущих");
+        fmt.format("%8s %34s             %34s            \n", "Итерация", "Метод Ньютона", "Метод секущих");
         fmt.format("%4s     %10s      %10s      %15s %10s      %10s      %15s \n", "k", "x1k", "x2k", "||xk - xk-1||", "x1k", "x2k", "||xk - xk-1||");
         double[] nwt1 = Arrays.copyOf(x0, 2);
         double[] nwtDx = gauss(df(nwt1), f(nwt1[0], nwt1[1]));
@@ -48,44 +48,36 @@ public class Equation {
         nwt2[0] = nwt1[0] + nwtDx[0];
         nwt2[1] = nwt1[1] + nwtDx[1];
         double[] sec1 = Arrays.copyOf(x0, 2);
-        double[] secDx;
+        double[] secDx = Arrays.copyOf(nwtDx, 2);
         double[] sec2 = Arrays.copyOf(nwt2, 2);
         double[] sec3 = new double[2];
-        double[] nwtNorm = new double[2];
-        nwtNorm[0] = nwt2[0] - nwt1[0];
-        nwtNorm[1] = nwt2[1] - nwt1[1];
-        double[] secNorm = Arrays.copyOf(nwtNorm, 2);
         int k = 0;
-        fmt.format("%4d     % 15.12f % 15.12f %15s % 15.12f % 15.12f %15s\n", k, nwt1[0], nwt1[1], "-", sec1[0], sec1[0], "-");
+        fmt.format("%4d     % 15.12f % 15.12f %10s      % 15.12f % 15.12f %10s     \n", k, nwt1[0], nwt1[1], "-", sec1[0], sec1[0], "-");
         k++;
-        fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, nwt2[0], nwt2[1], maxNorm(nwtNorm), sec2[0], sec2[0], maxNorm(secNorm));
+        fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, nwt2[0], nwt2[1], maxNorm(nwtDx), sec2[0], sec2[0], maxNorm(secDx));
         k++;
-        while(maxNorm(nwtNorm) >= E || maxNorm(secNorm) >= E) {
+        while(maxNorm(nwtDx) >= E || maxNorm(secDx) >= E) {
             //МПИ
             fmt.format("%4d     ", k);
-            if(maxNorm(nwtNorm) >= E) {
+            if(maxNorm(nwtDx) >= E) {
                 nwt1 = nwt2;
                 nwtDx = gauss(df(nwt1), f(nwt1[0], nwt1[1]));
                 nwt2[0] = nwt1[0] + nwtDx[0];
                 nwt2[1] = nwt1[1] + nwtDx[1];
-                nwtNorm[0] = nwt2[0] - nwt1[0];
-                nwtNorm[1] = nwt2[1] - nwt1[1];
-                fmt.format("% 15.12f % 15.12f % 15.12f ", nwt2[0], nwt2[1], maxNorm(nwtNorm));
+                fmt.format("% 15.12f % 15.12f % 15.12f ", nwt2[0], nwt2[1], maxNorm(nwtDx));
             } else {
                 fmt.format("%48c", ' ');
             }
             //Метод секущих
-            if(maxNorm(secNorm) >= E) {
+            if(maxNorm(secDx) >= E) {
                 if(k != 2) {
                     sec1 = sec2;
-                    sec2 = sec3;
+                    sec2 = Arrays.copyOf(sec3, 2);
                 }
                 secDx = gauss(dj(sec1, sec2), f(sec2[0], sec2[1]));
                 sec3[0] = sec2[0] + secDx[0];
                 sec3[1] = sec2[1] + secDx[1];
-                secNorm[0] = sec3[0] - sec2[0];
-                secNorm[1] = sec3[1] - sec2[1];
-                fmt.format("% 15.12f % 15.12f % 15.12f\n", sec3[0], sec3[1], maxNorm(secNorm));
+                fmt.format("% 15.12f % 15.12f % 15.12f\n", sec3[0], sec3[1], maxNorm(secDx));
             } else {
                 fmt.format("%47c\n", ' ');
             }
@@ -96,6 +88,7 @@ public class Equation {
     }
 
     private double[] gauss(double[][] a, double[] f) throws NumberFormatException {
+        //Метод Гаусса
         double max;
         int kMax;
         double[] temp;
