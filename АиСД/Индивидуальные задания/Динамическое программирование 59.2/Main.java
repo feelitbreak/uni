@@ -50,13 +50,16 @@ class Report {
 
     public void out() throws IOException {
         FileWriter fw = new FileWriter("report.out");
-        fw.write('0' + k);
+        fw.write(String.valueOf(k));
         fw.write('\n');
-        for(int i = k; i >= 0; i--) {
-            fw.write('0' + a[sol[i][0]]);
+        fw.write(String.valueOf(a[sol[k][0]]));
+        for(int i = k - 1; i >= 0; i--) {
+            fw.write(' ');
+            fw.write(String.valueOf(a[sol[i][0]]));
         }
         for(int i = 1; i <= k; i++) {
-            fw.write('0' + a[sol[i][1]]);
+            fw.write(' ');
+            fw.write(String.valueOf(a[sol[i][1]]));
         }
         fw.close();
     }
