@@ -52,14 +52,14 @@ class Report {
         FileWriter fw = new FileWriter("report.out");
         fw.write(String.valueOf(k));
         fw.write('\n');
-        fw.write(String.valueOf(a[sol[k][0]]));
+        fw.write(String.valueOf(sol[k][0] + 1));
         for(int i = k - 1; i >= 0; i--) {
             fw.write(' ');
-            fw.write(String.valueOf(a[sol[i][0]]));
+            fw.write(String.valueOf(sol[i][0] + 1));
         }
         for(int i = 1; i <= k; i++) {
             fw.write(' ');
-            fw.write(String.valueOf(a[sol[i][1]]));
+            fw.write(String.valueOf(sol[i][1] + 1));
         }
         fw.close();
     }
