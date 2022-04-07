@@ -10,5 +10,7 @@ public class Main {
         myEquation.outSec();
         System.out.println("Таблица 2:");
         myEquation.gaussSeidel();
+        System.out.print("Метод Гаусса-Зейделя, ||f(xn)||: ");
+        myEquation.outSeidel();
     }
 }

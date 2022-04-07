@@ -5,11 +5,12 @@ public class Equation {
     private final double[] x0;
     private double[] nwtX;
     private double[] secX;
+    private double seidelFxn;
     private final static int K_MAX = 100;
 
     public Equation() {
         x0 = new double[2];
-        x0[0] = 5.;
+        x0[0] = 5.2;
         x0[1] = 5.;
     }
 
@@ -55,9 +56,9 @@ public class Equation {
         double[] sec2 = Arrays.copyOf(nwt2, 2);
         double[] sec3 = new double[2];
         int k = 0;
-        fmt.format("%4d     % 15.12f % 15.12f %10s      % 15.12f % 15.12f %10s     \n", k, nwt1[0], nwt1[1], "-", sec1[0], sec1[0], "-");
+        fmt.format("%4d     % 15.12f % 15.12f %10s      % 15.12f % 15.12f %10s     \n", k, nwt1[0], nwt1[1], "-", sec1[0], sec1[1], "-");
         k++;
-        fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, nwt2[0], nwt2[1], maxNorm(nwtDx), sec2[0], sec2[0], maxNorm(secDx));
+        fmt.format("%4d     % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f % 15.12f\n", k, nwt2[0], nwt2[1], maxNorm(nwtDx), sec2[0], sec2[1], maxNorm(secDx));
         k++;
         while(maxNorm(nwtDx) >= E || maxNorm(secDx) >= E) {
             fmt.format("%4d     ", k);
@@ -118,18 +119,18 @@ public class Equation {
 
             double x1, x2;
             x1 = gs1[0];
-            x2 = x1 - (- f(x1, gs1[1])[0] / df1(x1, gs1[1]));
+            x2 = x1 - (- f(x1, gs1[1])[1] / df1(x1, gs1[1]));
             while(Math.abs(x2 - x1) >= E) {
                 x1 = x2;
-                x2 = x1 - (- f(x1, gs1[1])[0] / df1(x1, gs1[1]));
+                x2 = x1 - (- f(x1, gs1[1])[1] / df1(x1, gs1[1]));
             }
             gs2[0] = x2;
 
             x1 = gs1[1];
-            x2 = x1 - (- f(gs2[0], x1)[1] / df2(gs2[0], x1));
+            x2 = x1 - (- f(gs2[0], x1)[0] / df2(gs2[0], x1));
             while(Math.abs(x2 - x1) >= E) {
                 x1 = x2;
-                x2 = x1 - (- f(gs2[0], x1)[1] / df2(gs2[0], x1));
+                x2 = x1 - (- f(gs2[0], x1)[0] / df2(gs2[0], x1));
             }
             gs2[1] = x2;
 
@@ -138,19 +139,24 @@ public class Equation {
         }
         System.out.print(fmt);
         fmt.close();
+        seidelFxn = maxNorm(f(gs2[0], gs2[1]));
         if(k == K_MAX) {
             System.out.println("Ошибка. Метод расходится.");
         }
     }
 
+    public void outSeidel() {
+        System.out.println(seidelFxn);
+    }
+
     private double df1(double x1, double x2) {
         //df1 по x1
-        return Math.cos(x1 + 2 * x2) - 1;
+        return 6 * x1 + x2;
     }
 
     private double df2(double x1, double x2) {
         //df2 по x2
-        return x1 - 8 * x2;
+        return 2 * Math.cos(x1 + 2 * x2) - 1;
     }
 
     private double[] gauss(double[][] a, double[] f) throws NumberFormatException {
