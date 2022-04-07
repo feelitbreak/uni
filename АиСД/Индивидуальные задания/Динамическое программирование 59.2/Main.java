@@ -4,7 +4,7 @@ class Report {
     private final int[] a;
     private final int n;
     private int k;
-    private int[][] sol;
+    private final int[][] sol;
     private final static int MAX_VALUE = 100001;
 
     public Report() throws IOException {
@@ -49,7 +49,16 @@ class Report {
     }
 
     public void out() throws IOException {
-
+        FileWriter fw = new FileWriter("report.out");
+        fw.write('0' + k);
+        fw.write('\n');
+        for(int i = k; i >= 0; i--) {
+            fw.write('0' + a[sol[i][0]]);
+        }
+        for(int i = 1; i <= k; i++) {
+            fw.write('0' + a[sol[i][1]]);
+        }
+        fw.close();
     }
 }
 
