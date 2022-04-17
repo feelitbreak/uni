@@ -103,6 +103,9 @@ class Report {
     }
 
     public void formSequence() {
+        if(kRes == 0) {
+            return;
+        }
         int[] ind1 = new int[iRes];
         Arrays.fill(ind1, -1);
         int[] ind2 = new int[n];
