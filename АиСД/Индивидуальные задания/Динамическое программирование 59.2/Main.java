@@ -73,7 +73,7 @@ class Report {
         int m;
         while(l < r) {
             m = (l + r) / 2;
-            if ((j == 1 && sol[i][j][m] > x) || (j == 2 && sol[i][j][m] < x) || (j == 3 && seq1[m] > x ) || (j == 4 && seq2[m] < x )) {
+            if ((j == 1 && sol[i][j][m] > x) || (j == 2 && sol[i][j][m] < x) || (j == 3 && a[seq1[m]] > x ) || (j == 4 && a[seq2[m]] < x )) {
                 r = m;
             } else {
                 l = m + 1;
@@ -107,8 +107,8 @@ class Report {
         Arrays.fill(ind1, -1);
         int[] ind2 = new int[n];
         Arrays.fill(ind2, -1);
-        int[] seq1 = new int[kRes];
-        int[] seq2 = new int[kRes];
+        seq1 = new int[kRes];
+        seq2 = new int[kRes];
         int len1 = 0;
         int len2 = 0;
 
@@ -122,7 +122,7 @@ class Report {
         }
         i += 1;
         for(; len1 < kRes; i++) {
-            if(seq1[len1 - 1] < a[i] && a[i] < a[iRes]) {
+            if(a[seq1[len1 - 1]] < a[i] && a[i] < a[iRes]) {
                 seq1[len1] = i;
                 ind1[i] = seq1[len1 - 1];
                 len1++;
@@ -155,7 +155,7 @@ class Report {
         }
         i += 1;
         for(; len2 < kRes; i++) {
-            if(seq2[len2 - 1] > a[i] && a[i] < a[iRes]) {
+            if(a[seq2[len2 - 1]] > a[i] && a[i] < a[iRes]) {
                 seq2[len2] = i;
                 ind2[i] = seq2[len2 - 1];
                 len2++;
