@@ -98,7 +98,7 @@ class Report {
                 len2++;
             } else if(a[i] < a[iRoot]) {
                 int s = upperBound(a[i], len2, 2);
-                if(s != len2 && (s == 0 || a[seq1[s - 1]] != a[i])) {
+                if(s != len2 && (s == 0 || a[seq2[s - 1]] != a[i])) {
                     seq2[s] = i;
                     if (s != 0) {
                         ind2[i] = seq2[s - 1];
