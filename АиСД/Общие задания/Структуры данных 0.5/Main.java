@@ -54,7 +54,9 @@ class HashTable {
 }
 public class Main {
 
-    public static void main(String[] args) {
-	HashTable ht = new HashTable();
+    public static void main(String[] args) throws IOException {
+        HashTable ht = new HashTable();
+        ht.formTable();
+        ht.out();
     }
 }
