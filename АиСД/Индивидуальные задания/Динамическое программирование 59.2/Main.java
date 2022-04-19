@@ -4,13 +4,12 @@ import java.util.*;
 class Report {
     private final int[] a;
     private final int n;
-    private int kRes;
-    private int iRes;
-    private final int[] sol;
+    private int kRes = 0;
+    private int iRes = 0;
     private final int[] seq1;
     private final int[] seq2;
-    private int[] res1;
-    private int[] res2;
+    private final int[] res1;
+    private final int[] res2;
 
     public Report() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("report.in")));
@@ -21,45 +20,16 @@ class Report {
             st.nextToken();
             a[i] = (int) st.nval;
         }
-        sol = new int[n];
-        sol[0] = 0;
-        if(n != 1) {
-            sol[n - 1] = 0;
-        }
-        kRes = 0;
-        iRes = 0;
         seq1 = new int[n];
         seq2 = new int[n];
+        res1 = new int[n];
+        res2 = new int[n];
     }
 
     public void formSol() {
         for(int i = 1; i < n - 1; i++) {
-            sol[i] = Math.min(lis(i), lds(i));
-            if(sol[i] > kRes) {
-                kRes = sol[i];
-                iRes = i;
-            }
+            formSequence(i);
         }
-    }
-
-    private int lis(int i) {
-        int k = 0;
-        seq1[k] = 0;
-        for(int j = 1; j < i; j++) {
-            if(a[seq1[k]] < a[j] && a[j] < a[i]) {
-                k++;
-                seq1[k] = j;
-            } else if(a[j] < a[i]) {
-                int s = upperBound(a[j], k + 1, 1);
-                if(s == 0 || a[seq1[s - 1]] != a[j]) {
-                    seq1[s] = j;
-                }
-            }
-        }
-        if(a[seq1[0]] >= a[i]) {
-            return k;
-        }
-        return k + 1;
     }
 
     private int upperBound(int x, int r, int j) {
@@ -76,31 +46,8 @@ class Report {
         return r;
     }
 
-    private int lds(int i) {
-        int k = 0;
-        seq2[k] = i + 1;
-        for(int j = i + 2; j < n; j++) {
-            if(a[seq2[k]] > a[j] && a[j] < a[i]) {
-                k++;
-                seq2[k] = j;
-            } else if (a[j] < a[i]) {
-                int s = upperBound(a[j], k + 1, 2);
-                if(s == 0 || a[seq2[s - 1]] != a[j]) {
-                    seq2[s] = j;
-                }
-            }
-        }
-        if(a[seq2[0]] >= a[i]) {
-            return k;
-        }
-        return k + 1;
-    }
-
-    public void formSequence() {
-        if(kRes == 0) {
-            return;
-        }
-        int[] ind1 = new int[iRes];
+    public void formSequence(int iRoot) {
+        int[] ind1 = new int[iRoot];
         Arrays.fill(ind1, -1);
         int[] ind2 = new int[n];
         Arrays.fill(ind2, -1);
@@ -108,20 +55,20 @@ class Report {
         int len2 = 0;
 
         int i = 0;
-        for(; i < iRes; i++) {
-            if(a[i] < a[iRes]) {
+        for(; i < iRoot; i++) {
+            if(a[i] < a[iRoot]) {
                 seq1[0] = i;
                 len1++;
                 break;
             }
         }
         i += 1;
-        for(; len1 < kRes; i++) {
-            if(a[seq1[len1 - 1]] < a[i] && a[i] < a[iRes]) {
+        for(; i < iRoot; i++) {
+            if(a[seq1[len1 - 1]] < a[i] && a[i] < a[iRoot]) {
                 seq1[len1] = i;
                 ind1[i] = seq1[len1 - 1];
                 len1++;
-            } else if(a[i] < a[iRes]) {
+            } else if(a[i] < a[iRoot]) {
                 int s = upperBound(a[i], len1,  1);
                 if(s != len1) {
                     seq1[s] = i;
@@ -131,28 +78,23 @@ class Report {
                 }
             }
         }
-        res1 = new int[len1];
-        i = 0;
-        for(int j = seq1[len1 - 1]; j >= 0; j = ind1[j]) {
-            res1[i] = j;
-            i++;
-        }
 
-        i = iRes + 1;
+
+        i = iRoot + 1;
         for(; i < n; i++) {
-            if(a[i] < a[iRes]) {
+            if(a[i] < a[iRoot]) {
                 seq2[0] = i;
                 len2++;
                 break;
             }
         }
         i += 1;
-        for(; len2 < kRes; i++) {
-            if(a[seq2[len2 - 1]] > a[i] && a[i] < a[iRes]) {
+        for(; i < n; i++) {
+            if(a[seq2[len2 - 1]] > a[i] && a[i] < a[iRoot]) {
                 seq2[len2] = i;
                 ind2[i] = seq2[len2 - 1];
                 len2++;
-            } else if(a[i] < a[iRes]) {
+            } else if(a[i] < a[iRoot]) {
                 int s = upperBound(a[i], len2, 2);
                 if(s != len2) {
                     seq2[s] = i;
@@ -162,11 +104,30 @@ class Report {
                 }
             }
         }
-        res2 = new int[len2];
-        i = 0;
-        for(int j = seq2[len2 - 1]; j >= 0; j = ind2[j]) {
-            res2[i] = j;
-            i++;
+
+        if(kRes < Math.min(len1, len2)) {
+            iRes = iRoot;
+            kRes = Math.min(len1, len2);
+
+            i = 0;
+            int j = seq1[len1 - 1];
+            for (int k = 0; k < len1 - kRes; k++) {
+                j = ind1[j];
+            }
+            for (; j >= 0; j = ind1[j]) {
+                res1[i] = j;
+                i++;
+            }
+
+            i = 0;
+            j = seq2[len2 - 1];
+            for (int k = 0; k < len2 - kRes; k++) {
+                j = ind2[j];
+            }
+            for (; j >= 0; j = ind2[j]) {
+                res2[i] = j;
+                i++;
+            }
         }
     }
 
@@ -191,7 +152,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Report myRep = new Report();
         myRep.formSol();
-        myRep.formSequence();
         myRep.out();
     }
 }
