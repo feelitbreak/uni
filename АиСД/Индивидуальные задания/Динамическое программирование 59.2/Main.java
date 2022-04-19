@@ -8,6 +8,8 @@ class Report {
     private int iRes = 0;
     private final int[] seq1;
     private final int[] seq2;
+    private final int[] ind1;
+    private final int[] ind2;
     private final int[] res1;
     private final int[] res2;
 
@@ -22,6 +24,8 @@ class Report {
         }
         seq1 = new int[n];
         seq2 = new int[n];
+        ind1 = new int[n];
+        ind2 = new int[n];
         res1 = new int[n];
         res2 = new int[n];
     }
@@ -47,9 +51,7 @@ class Report {
     }
 
     public void formSequence(int iRoot) {
-        int[] ind1 = new int[iRoot];
         Arrays.fill(ind1, -1);
-        int[] ind2 = new int[n];
         Arrays.fill(ind2, -1);
         int len1 = 0;
         int len2 = 0;
@@ -70,7 +72,7 @@ class Report {
                 len1++;
             } else if(a[i] < a[iRoot]) {
                 int s = upperBound(a[i], len1,  1);
-                if(s != len1) {
+                if(s != len1 && (s == 0 || a[seq1[s - 1]] != a[i])) {
                     seq1[s] = i;
                     if (s != 0) {
                         ind1[i] = seq1[s - 1];
@@ -96,7 +98,7 @@ class Report {
                 len2++;
             } else if(a[i] < a[iRoot]) {
                 int s = upperBound(a[i], len2, 2);
-                if(s != len2) {
+                if(s != len2 && (s == 0 || a[seq1[s - 1]] != a[i])) {
                     seq2[s] = i;
                     if (s != 0) {
                         ind2[i] = seq2[s - 1];
