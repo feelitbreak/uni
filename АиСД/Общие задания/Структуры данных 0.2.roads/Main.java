@@ -45,13 +45,18 @@ class Roads {
             if(!inQuery[i]) {
                 u = roads[i][0];
                 v = roads[i][1];
-                buildRoad(u, v, false);
+                buildRoad(u, v);
             }
         }
+        if(n == 1) {
+            answer = q;
+            return;
+        }
+        
         for(int i = q - 1; i >= 0; i--) {
             u = roads[queries[i] - 1][0];
             v = roads[queries[i] - 1][1];
-            buildRoad(u, v, true);
+            buildRoad(u, v);
             if(n == 1) {
                 answer = i;
                 break;
@@ -59,7 +64,7 @@ class Roads {
         }
     }
 
-    private void buildRoad(int u, int v, boolean changeN) {
+    private void buildRoad(int u, int v) {
         int uLeader;
         int vLeader;
         uLeader = u;
@@ -79,9 +84,7 @@ class Roads {
                 forest[uLeader - 1] = vLeader;
                 forest[vLeader - 1]--;
             }
-            if(changeN) {
-                n--;
-            }
+            n--;
         }
     }
 
