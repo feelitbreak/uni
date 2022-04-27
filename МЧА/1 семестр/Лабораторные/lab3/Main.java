@@ -30,7 +30,7 @@ class Function {
     private double[] findC(int n) {
         //Формируем матрицу из s[i]
         double[][] s = new double[n + 1][n + 1];
-        s[0][0] = n + 1;
+        s[0][0] = N + 1;
         double si;
         for(int i = 1; i < n + 1; i++) {
             si = 0.;
@@ -38,7 +38,7 @@ class Function {
                 si += Math.pow(xk[j], i);
             }
             s[0][i] = si;
-            for(int j1 = i + 1, j2 = i - 1; j2 >= 0; j1++, j2--) {
+            for(int j1 = 1, j2 = i - 1; j1 < n + 1 && j2 >= 0; j1++, j2--) {
                 s[j1][j2] = si;
             }
         }
@@ -48,7 +48,7 @@ class Function {
                 si += Math.pow(xk[j], n + i);
             }
             s[i][n] = si;
-            for(int j1 = i + 1, j2 = i - 1; j2 >= 0; j1++, j2--) {
+            for(int j1 = i + 1, j2 = n - 1; j1 < n + 1 && j2 >= 0; j1++, j2--) {
                 s[j1][j2] = si;
             }
         }
