@@ -1,3 +1,5 @@
+import java.util.*;
+
 class Function {
     private static final int N = 40;
     private static final int n1 = 4;
@@ -6,7 +8,9 @@ class Function {
     private double[] c2;
     private final double[] xk;
     private final double[] fk;
+
     public Function() {
+        //Вектор узлов
         xk = new double[N + 1];
         double h = 0.1;
         xk[0] = -2.;
@@ -14,6 +18,7 @@ class Function {
             xk[i] = xk[i - 1] + h;
         }
 
+        //Вектор значений
         fk = new double[N + 1];
         for(int i = 0; i < N + 1; i++) {
             fk[i] = f(xk[i]);
@@ -25,6 +30,28 @@ class Function {
         c1 = findC(n1);
         //Находим коэффициенты для Q(6)
         c2 = findC(n2);
+    }
+
+    public void outQs() {
+        Formatter fmt = new Formatter();
+        fmt.format("Функция Q4:\n");
+        fmt.format("Q4(x) = (%.16f)\n", c1[0]);
+        fmt.format("+ (%.16f) * x\n", c1[1]);
+        fmt.format("+ (%.16f) * x^2\n", c1[2]);
+        fmt.format("+ (%.16f) * x^3\n", c1[3]);
+        fmt.format("+ (%.16f) * x^4.\n", c1[4]);
+        fmt.format("Приращение d^2(f) = %.16f.\n", getD1());
+        fmt.format("Функция Q6:\n");
+        fmt.format("Q6(x) = (%.16f)\n", c2[0]);
+        fmt.format("+ (%.16f) * x\n", c2[1]);
+        fmt.format("+ (%.16f) * x^2\n", c2[2]);
+        fmt.format("+ (%.16f) * x^3\n", c2[3]);
+        fmt.format("+ (%.16f) * x^4\n", c2[4]);
+        fmt.format("+ (%.16f) * x^5\n", c2[5]);
+        fmt.format("+ (%.16f) * x^6.\n", c2[6]);
+        fmt.format("Приращение d^2(f) = %.16f.\n", getD2());
+        System.out.print(fmt);
+        fmt.close();
     }
 
     private double[] findC(int n) {
@@ -66,6 +93,24 @@ class Function {
 
         //Решаем систему, находим коэффициенты
         return gauss(s, m);
+    }
+
+    private double getD1() {
+        //Подсчёт приращения для Q(4)
+        double d = 0;
+        for(int i = 0; i < N + 1; i++) {
+            d += Math.pow(fk[i] - q1(xk[i]), 2);
+        }
+        return d;
+    }
+
+    private double getD2() {
+        //Подсчёт приращения для Q(6)
+        double d = 0;
+        for(int i = 0; i < N + 1; i++) {
+            d += Math.pow(fk[i] - q2(xk[i]), 2);
+        }
+        return d;
     }
 
     private double[] gauss(double[][] a, double[] f) throws NumberFormatException {
@@ -130,7 +175,26 @@ class Function {
     }
 
     private double f(double x) {
+        //Функция f(x)
         return Math.sin(x) * Math.cos(x);
+    }
+
+    private double q1(double x) {
+        //Функция Q4(x)
+        double res = 0;
+        for(int i = 0; i < n1 + 1; i++) {
+            res += c1[i] * Math.pow(x, i);
+        }
+        return res;
+    }
+
+    private double q2(double x) {
+        //Функция Q6(x)
+        double res = 0;
+        for(int i = 0; i < n2 + 1; i++) {
+            res += c2[i] * Math.pow(x, i);
+        }
+        return res;
     }
 }
 
@@ -139,5 +203,6 @@ public class Main {
     public static void main(String[] args) {
         Function f = new Function();
         f.formQs();
+        f.outQs();
     }
 }
