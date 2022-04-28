@@ -53,15 +53,17 @@ class Report {
                 len1++;
                 k[i] = k[i - 1] + 1;
             } else {
-                int s = upperBound(a[i], len1,  1);
-                if(s != len1 && (s == 0 || a[seq[s - 1]] != a[i])) {
+                int s = upperBound(a, seq, a[i], len1);
+                if(s == 0 || a[seq[s - 1]] != a[i]) {
+                    k[i] = k[seq[s]];
                     seq[s] = i;
                     if (s != 0) {
                         ind[i] = seq[s - 1];
                     }
+                } else {
+                    k[i] = k[seq[s - 1]];
+                    ind[i] = ind[seq[s - 1]];
                 }
-                //ну это надо проверить
-                k[i] = k[i - 1];
             }
         }
     }
@@ -72,14 +74,30 @@ class Report {
             aRev[i] = a[n - i - 1];
         }
         lis(aRev, ind2, seq2, k2);
+        rev(seq2);
+        rev(k2);
+        rev(ind2);
+        for(int i = 0; i < n; i++) {
+            if(ind2[i] != -1) {
+                ind2[i] = n - ind2[i] - 1;
+            }
+        }
     }
 
-    private int upperBound(int x, int r, int j) {
+    private void rev(int[] x) {
+        int temp;
+        for(int i = 0; i < x.length / 2; i++) {
+            temp = x[i];
+            x[i] = x[n - i - 1];
+            x[n - i - 1] = temp;
+        }
+    }
+    private int upperBound(int[] a, int[] seq, int x, int r) {
         int l = 0;
         int m;
         while(l < r) {
             m = (l + r) / 2;
-            if ((j == 1 && a[seq1[m]] > x) || (j == 2 && a[seq2[m]] < x)) {
+            if (a[seq[m]] > x) {
                 r = m;
             } else {
                 l = m + 1;
@@ -88,7 +106,7 @@ class Report {
         return r;
     }
 
-    public void formSequence(int iRoot) {
+    /*public void formSequence(int iRoot) {
         Arrays.fill(ind1, -1);
         Arrays.fill(ind2, -1);
         int len1 = 0;
@@ -169,7 +187,7 @@ class Report {
                 i++;
             }
         }
-    }
+    }*/
 
     public void out() throws IOException {
         PrintWriter pw = new PrintWriter("report.out");
