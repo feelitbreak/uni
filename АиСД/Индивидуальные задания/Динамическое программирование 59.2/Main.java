@@ -65,8 +65,8 @@ class Report {
             if(a[seq[len1 - 1]] < a[i]) {
                 seq[len1] = i;
                 ind[i] = seq[len1 - 1];
+                k[i] = k[seq[len1 - 1]] + 1;
                 len1++;
-                k[i] = k[i - 1] + 1;
             } else {
                 int s = upperBound(a, seq, a[i], len1);
                 if(s == 0 || a[seq[s - 1]] != a[i]) {
