@@ -10,6 +10,8 @@ class Report {
     private final int[] seq2;
     private final int[] ind1;
     private final int[] ind2;
+    private final int[] k1;
+    private final int[] k2;
     private final int[] res1;
     private final int[] res2;
 
@@ -26,14 +28,50 @@ class Report {
         seq2 = new int[n];
         ind1 = new int[n];
         ind2 = new int[n];
+        k1 = new int[n];
+        k2 = new int[n];
         res1 = new int[n];
         res2 = new int[n];
     }
 
     public void formSol() {
-        for(int i = 1; i < n - 1; i++) {
-            formSequence(i);
+        lis(a, ind1, seq1, k1);
+        lds();
+
+    }
+
+    private void lis(int[] a, int[] ind, int[] seq, int[] k) {
+        Arrays.fill(ind, -1);
+        int len1 = 0;
+        seq[0] = 0;
+        k[0] = 1;
+        len1++;
+        for(int i = 1; i < n; i++) {
+            if(a[seq[len1 - 1]] < a[i]) {
+                seq[len1] = i;
+                ind[i] = seq[len1 - 1];
+                len1++;
+                k[i] = k[i - 1] + 1;
+            } else {
+                int s = upperBound(a[i], len1,  1);
+                if(s != len1 && (s == 0 || a[seq[s - 1]] != a[i])) {
+                    seq[s] = i;
+                    if (s != 0) {
+                        ind[i] = seq[s - 1];
+                    }
+                }
+                //ну это надо проверить
+                k[i] = k[i - 1];
+            }
         }
+    }
+
+    private void lds() {
+        int[] aRev = new int[n];
+        for(int i = 0; i < n; i++) {
+            aRev[i] = a[n - i - 1];
+        }
+        lis(aRev, ind2, seq2, k2);
     }
 
     private int upperBound(int x, int r, int j) {
