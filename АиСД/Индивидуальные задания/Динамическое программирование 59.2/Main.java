@@ -44,12 +44,12 @@ class Report {
         kRes--;
         if(kRes != 0) {
             res1 = new int[kRes];
-            for (int i = 0, j = seq1[iRes]; i < kRes; j = ind1[j], i++) {
+            for (int i = 0, j = ind1[iRes]; i < kRes; j = ind1[j], i++) {
                 res1[i] = j;
             }
 
             res2 = new int[kRes];
-            for (int i = 0, j = seq2[iRes]; i < kRes; j = ind2[j], i++) {
+            for (int i = 0, j = ind2[iRes]; i < kRes; j = ind2[j], i++) {
                 res2[i] = j;
             }
         }
@@ -89,7 +89,6 @@ class Report {
             aRev[i] = a[n - i - 1];
         }
         lis(aRev, ind2, seq2, k2);
-        rev(seq2);
         rev(k2);
         rev(ind2);
         for(int i = 0; i < n; i++) {
