@@ -5,11 +5,10 @@ class Schedule {
     private final int n;
     private final int[] p;
     private final int[] d;
-    private final int m;
     private final int[] outArcsN;
     private final List<List<Integer>> inArcs;
     private final int[] y;
-    private int maxFine = 0;
+    private long maxFine = 0;
     private int iMaxFine = 0;
 
     public Schedule() throws IOException {
@@ -25,6 +24,7 @@ class Schedule {
             d[i] = (int) st.nval;
         }
 
+        int m;
         st.nextToken();
         m = (int) st.nval;
 
@@ -70,7 +70,7 @@ class Schedule {
     }
 
     public void calculateMaxFine() {
-        int time = 0;
+        long time = 0;
         for(int i = 0; i < n; i++) {
             time += p[y[i] - 1];
             if(time - d[y[i] - 1] > maxFine) {
