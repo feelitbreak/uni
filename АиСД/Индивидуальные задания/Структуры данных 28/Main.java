@@ -3,28 +3,28 @@ import java.util.*;
 
 class Schedule {
     private final int n;
-    private final int[] p;
-    private final int[] d;
-    private final int m;
+    private final long[] p;
+    private final long[] d;
     private final int[] outArcsN;
     private final List<List<Integer>> inArcs;
     private final int[] y;
-    private int maxFine = 0;
-    private int iMaxFine = 0;
+    private long maxFine = 0;
+    private int iMaxFine;
 
     public Schedule() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
         st.nextToken();
         n = (int) st.nval;
-        p = new int[n];
-        d = new int[n];
+        p = new long[n];
+        d = new long[n];
         for(int i = 0; i < n; i++) {
             st.nextToken();
-            p[i] = (int) st.nval;
+            p[i] = (long) st.nval;
             st.nextToken();
-            d[i] = (int) st.nval;
+            d[i] = (long) st.nval;
         }
 
+        int m;
         st.nextToken();
         m = (int) st.nval;
 
@@ -47,7 +47,15 @@ class Schedule {
     }
 
     public void formSequence() {
-        Queue<Integer> pq = new PriorityQueue<>((x, y) -> d[y - 1] - d[x - 1]);
+        Queue<Integer> pq = new PriorityQueue<>((x, y) -> {
+            if(d[y - 1] - d[x - 1] > 0) {
+                return 1;
+            } else if(d[y - 1] - d[x - 1] < 0) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }) ;
         for(int i = 0; i < n; i++) {
             if(outArcsN[i] == 0) {
                 pq.add(i + 1);
@@ -70,23 +78,25 @@ class Schedule {
     }
 
     public void calculateMaxFine() {
-        int time = 0;
+        long time = 0;
+        iMaxFine = y[0];
         for(int i = 0; i < n; i++) {
             time += p[y[i] - 1];
             if(time - d[y[i] - 1] > maxFine) {
                 maxFine = time - d[y[i] - 1];
-                iMaxFine = i;
+                iMaxFine = y[i];
             }
         }
     }
 
-    public void out() throws IOException {
+    public void out() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("output.txt");
-        pw.print(iMaxFine + 1);
+        pw.print(iMaxFine);
         pw.print(' ');
-        pw.println(maxFine);
+        pw.print(maxFine);
         for(int i = 0; i < n; i++) {
-            pw.println(y[i]);
+            pw.print('\n');
+            pw.print(y[i]);
         }
         pw.close();
     }
