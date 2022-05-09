@@ -26,30 +26,31 @@ public class Function {
     }
 
     public void formPolynomials() {
+        //Формирование многочленов и таблиц
         for (int i = 0; i < N.length; i++) {
             xk = formXk(N[i]);
             lagrangePol(xk);
             table1[0][i] = getD1();
             table2[0][i] = getD2();
-            System.out.print("Многочлены по равноотстоящим узлам для n = " + N[i] + ":");
+            System.out.print("\nМногочлены по равноотстоящим узлам для n = " + N[i] + ":\n");
             outPs();
             xk = formXkCh(N[i]);
             lagrangePol(xk);
             table1[1][i] = getD1();
             table2[1][i] = getD2();
-            System.out.print("Многочлены по чебышёвским узлам для n = " + N[i] + ":");
-            System.out.println(N[i]);
+            System.out.print("\nМногочлены по чебышёвским узлам для n = " + N[i] + ":\n");
             outPs();
         }
     }
 
     public void outTables() {
+        //Вывод таблиц
         Formatter fmt = new Formatter();
-        fmt.format("Таблица 1:\n");
+        fmt.format("\nТаблица 1:\n");
         fmt.format("%8s      %8d      %8d      %8d      %8d      \n", "n", N[0], N[1], N[2], N[3]);
         fmt.format(" max|Pn - f1|  %13.10f %13.10f %13.10f %13.10f\n", table1[0][0], table1[0][1], table1[0][2], table1[0][3]);
         fmt.format("max|PnCh - f1| %13.10f %13.10f %13.10f %13.10f\n", table1[1][0], table1[1][1], table1[1][2], table1[1][3]);
-        fmt.format("Таблица 2:\n");
+        fmt.format("\nТаблица 2:\n");
         fmt.format("%8s      %8d      %8d      %8d      %8d      \n", "n", N[0], N[1], N[2], N[3]);
         fmt.format(" max|Pn - f2|  %13.10f %13.10f %13.10f %13.10f\n", table2[0][0], table2[0][1], table2[0][2], table2[0][3]);
         fmt.format("max|PnCh - f2| %13.10f %13.10f %13.10f %13.10f\n", table2[1][0], table2[1][1], table2[1][2], table2[1][3]);
@@ -58,6 +59,7 @@ public class Function {
     }
 
     private void lagrangePol(double[] xk) {
+        //Подсчёт коэффициентов в представлении Лагранжа
         c1 = new double[xk.length];
         c2 = new double[xk.length];
         for(int i = 0; i < xk.length; i++) {
@@ -73,6 +75,7 @@ public class Function {
     }
 
     private void outPs() {
+        //Вывод многочленов
         Formatter fmt = new Formatter();
         fmt.format("Для функции f1(x):\n");
         fmtWithC(fmt, c1);
@@ -88,14 +91,14 @@ public class Function {
             fmt.format("(%.10f) ", c[i]);
             for(int j = 0; j < c.length; j++) {
                 if(j != i) {
-                    fmt.format("* (x - (%.2f)) ", xk[j]);
+                    fmt.format("* (x - (%.4f)) ", xk[j]);
                 }
             }
             if(i != c.length - 1) {
-                fmt.format("+");
+                fmt.format("+ ");
             }
-            fmt.format("\n");
         }
+        fmt.format("\n");
     }
 
     private double f1(double x) {
@@ -109,6 +112,7 @@ public class Function {
     }
 
     private double getD1() {
+        //Подсчёт max приращения для f1
         double max = 0.;
         for(int i = 0; i < N_XI + 1; i++) {
             if(Math.abs(P(xi[i], 1) - f1(xi[i])) > max) {
@@ -119,6 +123,7 @@ public class Function {
     }
 
     private double getD2() {
+        //Подсчёт max приращения для f2
         double max = 0.;
         for(int i = 0; i < N_XI + 1; i++) {
             if(Math.abs(P(xi[i], 2) - f2(xi[i])) > max) {
@@ -129,6 +134,7 @@ public class Function {
     }
 
     private double P(double x, int k) {
+        //Полученные многочлены, k - номер функции (1 или 2)
         double res = 0.;
         for(int i = 0; i < xk.length; i++) {
             double m;
