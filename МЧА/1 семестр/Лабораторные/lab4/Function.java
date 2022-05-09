@@ -46,13 +46,13 @@ public class Function {
     public void outTables() {
         Formatter fmt = new Formatter();
         fmt.format("Таблица 1:\n");
-        fmt.format("%8s      %7s      %7s      %7s      %7s      \n", "n", "5", "10", "15", "20");
-        fmt.format(" max|Pn - f1|  %12.7f %12.7f %12.7f %12.7f\n", table1[0][0], table1[0][1], table1[0][2], table1[0][3]);
-        fmt.format("max|PnCh - f1| %12.7f %12.7f %12.7f %12.7f\n", table1[1][0], table1[1][1], table1[1][2], table1[1][3]);
+        fmt.format("%8s      %8d      %8d      %8d      %8d      \n", "n", N[0], N[1], N[2], N[3]);
+        fmt.format(" max|Pn - f1|  %13.10f %13.10f %13.10f %13.10f\n", table1[0][0], table1[0][1], table1[0][2], table1[0][3]);
+        fmt.format("max|PnCh - f1| %13.10f %13.10f %13.10f %13.10f\n", table1[1][0], table1[1][1], table1[1][2], table1[1][3]);
         fmt.format("Таблица 2:\n");
-        fmt.format("%8s      %7s      %7s      %7s      %7s      \n", "n", "5", "10", "15", "20");
-        fmt.format(" max|Pn - f2|  %12.7f %12.7f %12.7f %12.7f\n", table2[0][0], table2[0][1], table2[0][2], table2[0][3]);
-        fmt.format("max|PnCh - f2| %12.7f %12.7f %12.7f %12.7f\n", table2[1][0], table2[1][1], table2[1][2], table2[1][3]);
+        fmt.format("%8s      %8d      %8d      %8d      %8d      \n", "n", N[0], N[1], N[2], N[3]);
+        fmt.format(" max|Pn - f2|  %13.10f %13.10f %13.10f %13.10f\n", table2[0][0], table2[0][1], table2[0][2], table2[0][3]);
+        fmt.format("max|PnCh - f2| %13.10f %13.10f %13.10f %13.10f\n", table2[1][0], table2[1][1], table2[1][2], table2[1][3]);
         System.out.println(fmt);
         fmt.close();
     }
@@ -85,10 +85,10 @@ public class Function {
     private void fmtWithC(Formatter fmt, double[] c) {
         fmt.format("P(x) = ");
         for(int i = 0; i < c.length; i++) {
-            fmt.format("(%.16f) ", c[i]);
+            fmt.format("(%.10f) ", c[i]);
             for(int j = 0; j < c.length; j++) {
                 if(j != i) {
-                    fmt.format("* (x - (%.1f)) ", xk[j]);
+                    fmt.format("* (x - (%.2f)) ", xk[j]);
                 }
             }
             if(i != c.length - 1) {
