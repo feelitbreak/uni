@@ -78,7 +78,7 @@ class Walk {
     }
 
     public void dijkstra() {
-        PriorityQueue<Pair> pq = new PriorityQueue<>();
+        PriorityQueue<Pair> pq = new PriorityQueue<>((p1, p2) -> Long.compare(p2.getDist(), p1.getDist()));
         pq.add(new Pair(START, dist[START - 1]));
         Pair p;
         int u;
@@ -91,7 +91,9 @@ class Walk {
                 processed[u - 1] = true;
                 dist[u - 1] = d;
                 for(Weight w : adj.get(u - 1)) {
-                    pq.add(new Pair(w.getU(), d + w.getW()));
+                    if(!processed[w.getU() - 1]) {
+                        pq.add(new Pair(w.getU(), d + w.getW()));
+                    }
                 }
             }
         }
