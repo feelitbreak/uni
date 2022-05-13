@@ -78,7 +78,7 @@ class Walk {
     }
 
     public void dijkstra() {
-        PriorityQueue<Pair> pq = new PriorityQueue<>((p1, p2) -> Long.compare(p2.getDist(), p1.getDist()));
+        PriorityQueue<Pair> pq = new PriorityQueue<>(Comparator.comparingLong(Pair::getDist));
         pq.add(new Pair(START, dist[START - 1]));
         Pair p;
         int u;
