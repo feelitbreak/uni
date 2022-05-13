@@ -39,12 +39,10 @@ class Pair {
 
 class Walk {
     private final int n;
-    private final int m;
     private final List<List<Weight>> adj;
     private final long[] dist;
-    private final int start = 1;
+    private final static int START = 1;
     private final boolean[] processed;
-    private final int minLength = 0;
 
 
     public Walk() throws IOException {
@@ -52,10 +50,11 @@ class Walk {
         st.nextToken();
         n = (int) st.nval;
         st.nextToken();
+        int m;
         m = (int) st.nval;
         adj = new ArrayList<>(n);
         for(int i = 0; i < n; i++) {
-            adj.set(i, new ArrayList<>());
+            adj.add(new ArrayList<>());
         }
         dist = new long[n];
         for(int i = 1; i < n; i++) {
@@ -80,7 +79,7 @@ class Walk {
 
     public void dijkstra() {
         PriorityQueue<Pair> pq = new PriorityQueue<>();
-        pq.add(new Pair(start, dist[start - 1]));
+        pq.add(new Pair(START, dist[START - 1]));
         Pair p;
         int u;
         long d;
@@ -90,7 +89,7 @@ class Walk {
             d = p.getDist();
             if(!processed[u - 1]) {
                 processed[u - 1] = true;
-                dist[u - 1] = p.getDist();
+                dist[u - 1] = d;
                 for(Weight w : adj.get(u - 1)) {
                     pq.add(new Pair(w.getU(), d + w.getW()));
                 }
