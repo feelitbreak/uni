@@ -19,16 +19,13 @@ class TelephoneNumber {
     };
 
     public TelephoneNumber() throws IOException {
-        StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
-        st.nextToken();
-        num = st.sval;
-        st.nextToken();
-        n = (int) st.nval;
+        BufferedReader br = new BufferedReader(new FileReader("input.txt"));
+        num = br.readLine();
+        n = Integer.parseInt(br.readLine());
         words = new Word[n];
         String word;
         for(int i = 0; i < n; i++) {
-            st.nextToken();
-            word = st.sval;
+            word = br.readLine();
             words[i] = new Word(word, decipher(word));
         }
     }
