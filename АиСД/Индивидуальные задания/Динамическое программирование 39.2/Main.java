@@ -61,7 +61,7 @@ class TelephoneNumber {
                     } else if(k[i - wNum.length()] != 0 && (k[i] == 0 || k[i] > k[i - wNum.length()] + 1)) {
                         k[i] = k[i - wNum.length()] + 1;
                         sol[i] = j;
-                        ind[i] = sol[i - wNum.length()];
+                        ind[i] = i - wNum.length();
                     }
                 }
             }
@@ -69,8 +69,8 @@ class TelephoneNumber {
 
         if(k[num.length() - 1] != 0) {
             res = new int[k[num.length() - 1]];
-            for(int i = k[num.length() - 1] - 1, j = k[num.length() - 1] - 1; ind[j] != -1; j = ind[j], i--) {
-                res[i] = j;
+            for(int i = k[num.length() - 1] - 1, j = num.length() - 1; j != -1; j = ind[j], i--) {
+                res[i] = sol[j];
             }
         }
     }
@@ -87,7 +87,7 @@ class TelephoneNumber {
                 pw.print(words[res[i]].getWord());
             }
         }
-
+        pw.close();
     }
 
     private String decipher(String word) {
