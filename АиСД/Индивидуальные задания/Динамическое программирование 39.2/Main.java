@@ -58,6 +58,7 @@ class TelephoneNumber {
                     if(i + 1 - wNum.length() == 0) {
                         k[i] = 1;
                         sol[i] = j;
+                        ind[i] = -1;
                     } else if(k[i - wNum.length()] != 0 && (k[i] == 0 || k[i] > k[i - wNum.length()] + 1)) {
                         k[i] = k[i - wNum.length()] + 1;
                         sol[i] = j;
