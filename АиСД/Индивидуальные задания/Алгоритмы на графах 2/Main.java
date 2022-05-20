@@ -25,7 +25,7 @@ class Graph {
     private final int[] dsu;
     private int m = 0;
     private final boolean[] processed;
-    private boolean hasTree = false;
+    private boolean hasTree = true;
 
     public Graph() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
@@ -37,10 +37,10 @@ class Graph {
 
         int x;
         for(int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
+            for (int j = 0; j < n; j++) {
                 st.nextToken();
                 x = (int) st.nval;
-                if(x == 1) {
+                if(j > i && x == 1) {
                     edges.add(new Edge(i + 1, j + 1));
                 }
             }
