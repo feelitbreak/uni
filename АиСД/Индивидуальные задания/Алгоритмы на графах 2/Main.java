@@ -28,11 +28,12 @@ class Edge {
 }
 
 class Graph {
-    private int n;
+    private final int n;
     private final Set<Edge> edges;
     private final int[] dsu;
-    private int M = 0;
+    private int m = 0;
     private final boolean[] processed;
+    private boolean hasTree = false;
 
     public Graph() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
@@ -64,18 +65,34 @@ class Graph {
             v = edge.getV();
 
             if(buildRoad(u, v)) {
-                M++;
+                m++;
                 processed[u - 1] = true;
                 processed[v - 1] = true;
             } else {
                 edges.remove(edge);
             }
         }
+
+        for(int i = 0; i < n; i++) {
+            if(!processed[i]) {
+                hasTree = false;
+                break;
+            }
+        }
     }
 
     public void out() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("output.txt");
-
+        if(!hasTree) {
+            pw.print(-1);
+        } else {
+            pw.println(m);
+            for(Edge edge : edges) {
+                pw.print(edge.getU());
+                pw.print(' ');
+                pw.println(edge.getV());
+            }
+        }
         pw.close();
     }
 
@@ -93,7 +110,6 @@ class Graph {
                 dsu[uLeader - 1] = vLeader;
                 dsu[vLeader - 1]--;
             }
-            n--;
             return true;
         }
         return false;
