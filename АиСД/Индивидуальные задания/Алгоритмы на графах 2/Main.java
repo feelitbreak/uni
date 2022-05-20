@@ -17,19 +17,11 @@ class Edge {
     public int getV() {
         return v;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Edge edge = (Edge) o;
-        return (u == edge.u && v == edge.v) || (v == edge.u && u == edge.v);
-    }
 }
 
 class Graph {
     private final int n;
-    private final Set<Edge> edges;
+    private final List<Edge> edges;
     private final int[] dsu;
     private int m = 0;
     private final boolean[] processed;
@@ -39,13 +31,13 @@ class Graph {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
         st.nextToken();
         n = (int) st.nval;
-        edges = new HashSet<>((int) Math.pow(n, 2));
+        edges = new ArrayList<>((int) Math.pow(n, 2));
         dsu = new int[n];
         processed = new boolean[n];
 
         int x;
         for(int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
+            for (int j = i + 1; j < n; j++) {
                 st.nextToken();
                 x = (int) st.nval;
                 if(x == 1) {
@@ -60,7 +52,10 @@ class Graph {
     public void findSpanningTree() {
         int u;
         int v;
-        for(Edge edge : edges) {
+        Edge edge;
+        Iterator<Edge> it = edges.iterator();
+        while(it.hasNext()) {
+            edge = it.next();
             u = edge.getU();
             v = edge.getV();
 
@@ -69,7 +64,7 @@ class Graph {
                 processed[u - 1] = true;
                 processed[v - 1] = true;
             } else {
-                edges.remove(edge);
+                it.remove();
             }
         }
 
