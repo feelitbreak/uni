@@ -20,12 +20,10 @@ class Edge {
 }
 
 class Graph {
-    private final int n;
+    private int n;
     private final List<Edge> edges;
     private final int[] dsu;
     private int m = 0;
-    private final boolean[] processed;
-    private boolean hasTree = true;
 
     public Graph() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
@@ -33,7 +31,6 @@ class Graph {
         n = (int) st.nval;
         edges = new ArrayList<>((int) Math.pow(n, 2));
         dsu = new int[n];
-        processed = new boolean[n];
 
         int x;
         for(int i = 0; i < n; i++) {
@@ -50,6 +47,7 @@ class Graph {
     }
 
     public void findSpanningTree() {
+
         int u;
         int v;
         Edge edge;
@@ -61,24 +59,15 @@ class Graph {
 
             if(buildRoad(u, v)) {
                 m++;
-                processed[u - 1] = true;
-                processed[v - 1] = true;
             } else {
                 it.remove();
-            }
-        }
-
-        for(int i = 0; i < n; i++) {
-            if(!processed[i]) {
-                hasTree = false;
-                break;
             }
         }
     }
 
     public void out() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("output.txt");
-        if(!hasTree) {
+        if(n != 1) {
             pw.print(-1);
         } else {
             pw.println(m);
@@ -105,6 +94,7 @@ class Graph {
                 dsu[uLeader - 1] = vLeader;
                 dsu[vLeader - 1]--;
             }
+            n--;
             return true;
         }
         return false;
