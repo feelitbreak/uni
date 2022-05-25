@@ -42,9 +42,8 @@ class Graph {
         int ages2 = 0;
 
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
-        st.eolIsSignificant(true);
         st.nextToken();
-        while(st.ttype != StreamTokenizer.TT_EOL) {
+        while(st.lineno() == 1) {
             if(agesDept1[((int) st.nval) - MIN_AGE] == 0) {
                 ages1++;
             }
@@ -52,7 +51,6 @@ class Graph {
             n++;
             st.nextToken();
         }
-        st.nextToken();
         while(st.ttype != StreamTokenizer.TT_EOF) {
             if(agesDept2[((int) st.nval) - MIN_AGE] == 0) {
                 ages2++;
