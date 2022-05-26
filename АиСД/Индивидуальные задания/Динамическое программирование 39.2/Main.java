@@ -249,7 +249,7 @@ class TelephoneNumber {
                             v = uV;
                             j += uV.getJ() - uV.getI();
                             break;
-                        } else if(!uV.isEndWord() || k[j + uV.getJ() - uV.getI()] == 0 || k[i] > k[j + uV.getJ() - uV.getI()] + 1) {
+                        } else {
                             v = uV;
                             j += uV.getJ() - uV.getI();
                             break;
