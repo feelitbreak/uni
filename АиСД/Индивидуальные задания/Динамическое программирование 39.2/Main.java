@@ -181,6 +181,10 @@ class TelephoneNumber {
 
                     b.setK(uV.getK());
                     System.arraycopy(uV.descendants, 0, b.descendants, 0, b.getK());
+                    if(!uV.isEndWord()) {
+                        b.setEndWord(false);
+                    }
+
                     uV.setK(0);
                     radixTree[nRadixTree] = b;
                     uV.addToDescendants(nRadixTree);
