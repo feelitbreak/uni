@@ -115,14 +115,14 @@ class TelephoneNumber {
         sol = new int[num.length()];
         k = new int[num.length()];
 
-        radixTree = new Vertex[2 * n + 2];
+        radixTree = new Vertex[2 * n + 1];
     }
 
     public void buildRadixTree() {
         radixTree[0] = new Vertex(-1, -1, -1);
         radixTree[0].setEndWord(false);
         nRadixTree++;
-        for (int i = 0; i < words.length; i++) {
+        for (int i = 0; i < n; i++) {
             if(words[i].getLength() <= num.length()) {
                 addToTree(i);
             }
@@ -136,8 +136,8 @@ class TelephoneNumber {
         boolean noElement = false;
         int i = 0;
         while(!noElement && v.getK() != 0) {
-            for(int k = 0; k < v.getK(); k++) {
-                Vertex uV = radixTree[v.descendants[k]];
+            for(int s = 0; s < v.getK(); s++) {
+                Vertex uV = radixTree[v.descendants[s]];
 
                 int j = prefix(word.getNum(), i, uV);
 
@@ -173,7 +173,7 @@ class TelephoneNumber {
                     nRadixTree++;
 
                     return;
-                } else if (k == v.getK() - 1) {
+                } else if (s == v.getK() - 1) {
                     noElement = true;
                 }
             }
@@ -201,27 +201,42 @@ class TelephoneNumber {
         ind = new int[num.length()];
         Arrays.fill(ind, -1);
 
-        String wNum;
-        for(int i = 0; i < num.length(); i++) {
-            for(int j = 0; j < n; j++) {
-                wNum = words[j].getNum();
-                if(wNum.length() <= i + 1 && num.startsWith(wNum, i + 1 - wNum.length())) {
-                    if(i + 1 - wNum.length() == 0) {
-                        k[i] = 1;
-                        sol[i] = j;
-                        ind[i] = -1;
-                    } else if(k[i - wNum.length()] != 0 && (k[i] == 0 || k[i] > k[i - wNum.length()] + 1)) {
-                        k[i] = k[i - wNum.length()] + 1;
-                        sol[i] = j;
-                        ind[i] = i - wNum.length();
+        for(int i = num.length() - 1; i >= 0; i--) {
+            Vertex v = radixTree[0];
+            int j = i;
+            boolean noElement = false;
+            while(j <= num.length() - 1 && !noElement) {
+                for(int s = 0; s < v.getK(); s++) {
+                    Vertex uV = radixTree[v.descendants[s]];
+                    String wNum = words[uV.getH()].getNum();
+                    if(num.startsWith(wNum.substring(uV.getI(), uV.getJ()), j)) {
+                        if(uV.isEndWord() && j + uV.getJ() - uV.getI() == num.length()) {
+                            k[i] = 1;
+                            sol[i] = uV.getH();
+                            ind[i] = -1;
+                            v = uV;
+                            j += uV.getJ() - uV.getI();
+                            break;
+                        } else if(uV.isEndWord() && k[j + uV.getJ() - uV.getI()] != 0 &&
+                                (k[i] == 0 || k[i] > k[j + uV.getJ() - uV.getI()] + 1)) {
+                            k[i] = k[j + uV.getJ() - uV.getI()] + 1;
+                            sol[i] = uV.getH();
+                            ind[i] = j + uV.getJ() - uV.getI();
+                            v = uV;
+                            j += uV.getJ() - uV.getI();
+                            break;
+                        }
+                    }
+                    if(s == v.getK() - 1) {
+                        noElement = true;
                     }
                 }
             }
         }
 
-        if(k[num.length() - 1] != 0) {
-            res = new int[k[num.length() - 1]];
-            for(int i = k[num.length() - 1] - 1, j = num.length() - 1; j != -1; j = ind[j], i--) {
+        if(k[0] != 0) {
+            res = new int[k[0]];
+            for(int i = 0, j = 0; j != -1; j = ind[j], i++) {
                 res[i] = sol[j];
             }
         }
@@ -229,10 +244,10 @@ class TelephoneNumber {
 
     public void out() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("output.txt");
-        if(k[num.length() - 1] == 0) {
+        if(k[0] == 0) {
             pw.print("No solution");
         } else {
-            pw.println(k[num.length() - 1]);
+            pw.println(k[0]);
             pw.print(words[res[0]].getWord());
             for(int i = 1; i < res.length; i++) {
                 pw.print(' ');
