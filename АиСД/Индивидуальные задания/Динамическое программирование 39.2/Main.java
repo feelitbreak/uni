@@ -155,6 +155,26 @@ class TelephoneNumber {
                             i += j;
                             break;
                         }
+                } else if(i + j == word.getLength()) {
+                    Vertex a = new Vertex(uV.getH(), uV.getI() + j, uV.getJ());
+                    radixTree[nRadixTree] = a;
+                    nRadixTree++;
+
+                    a.setK(uV.getK());
+                    System.arraycopy(uV.descendants, 0, a.descendants, 0, a.getK());
+
+                    if(!uV.isEndWord()) {
+                        a.setEndWord(false);
+                        uV.setEndWord(true);
+                    }
+
+                    uV.setH(iWord);
+                    uV.setI(i);
+                    uV.setJ(word.getLength());
+                    uV.setK(0);
+                    uV.addToDescendants(nRadixTree - 1);
+
+                    return;
                 } else if (j != 0) {
                     Vertex a = new Vertex(iWord, i + j, word.getLength());
                     Vertex b = new Vertex(uV.getH(), uV.getI() + j, uV.getJ());
