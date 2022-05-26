@@ -4,9 +4,9 @@ import java.util.*;
 class Vertex {
     public int[] descendants;
     private int k = 0;
-    private final int h;
-    private final int i;
-    private final int j;
+    private int h;
+    private int i;
+    private int j;
     private boolean endWord = true;
 
     public Vertex(int h, int i, int j) {
@@ -36,6 +36,18 @@ class Vertex {
         return j;
     }
 
+    public void setH(int h) {
+        this.h = h;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public void setJ(int j) {
+        this.j = j;
+    }
+
     public boolean isEndWord() {
         return endWord;
     }
@@ -53,10 +65,12 @@ class Vertex {
 class Word {
     private final String word;
     private final String num;
+    private final int length;
 
     public Word(String word, String num) {
         this.word = word;
         this.num = num;
+        length = num.length();
     }
 
     public String getWord() {
@@ -65,6 +79,10 @@ class Word {
 
     public String getNum() {
         return num;
+    }
+
+    public int getLength() {
+        return length;
     }
 }
 
@@ -105,7 +123,9 @@ class TelephoneNumber {
         radixTree[0].setEndWord(false);
         nRadixTree++;
         for (int i = 0; i < words.length; i++) {
-            addToTree(i);
+            if(words[i].getLength() <= num.length()) {
+                addToTree(i);
+            }
         }
     }
 
@@ -118,17 +138,25 @@ class TelephoneNumber {
         while(!noElement && v.getK() != 0) {
             for(int k = 0; k < v.getK(); k++) {
                 Vertex uV = radixTree[v.descendants[k]];
+
                 int j = prefix(word.getNum(), i, uV);
+
                 if (uV.getI() + j == uV.getJ()) {
-                    if (i + j == word.getNum().length() && uV.isEndWord()) {
+                    if (i + j == word.getLength() && uV.isEndWord()) {
+                        return;
+                    } else if(i + j == word.getLength()) {
+                        uV.setEndWord(true);
+                        uV.setH(iWord);
+                        uV.setI(i);
+                        uV.setJ(i + j);
                         return;
                     } else {
-                        v = uV;
-                        i += j;
-                        break;
-                    }
+                            v = uV;
+                            i += j;
+                            break;
+                        }
                 } else if (j != 0) {
-                    Vertex a = new Vertex(iWord, i + j, word.getNum().length());
+                    Vertex a = new Vertex(iWord, i + j, word.getLength());
                     Vertex b = new Vertex(uV.getH(), uV.getI() + j, uV.getJ());
 
                     b.setK(uV.getK());
@@ -138,6 +166,7 @@ class TelephoneNumber {
                     uV.addToDescendants(nRadixTree);
                     nRadixTree++;
                     uV.setEndWord(false);
+                    uV.setJ(uV.getI() + j);
 
                     radixTree[nRadixTree] = a;
                     uV.addToDescendants(nRadixTree);
@@ -150,7 +179,7 @@ class TelephoneNumber {
             }
         }
 
-        Vertex a = new Vertex(iWord, i, word.getNum().length());
+        Vertex a = new Vertex(iWord, i, word.getLength());
         radixTree[nRadixTree] = a;
         v.addToDescendants(nRadixTree);
         nRadixTree++;
