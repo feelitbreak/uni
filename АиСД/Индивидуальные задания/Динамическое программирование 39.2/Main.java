@@ -102,9 +102,11 @@ class TelephoneNumber {
     private void addToTree(int iWord) {
         Word word = words[iWord];
         Vertex v = radixTree[0];
+
+        boolean noElement = false;
         int i = 0;
-        while(true) {
-            for(int k = 0; k < v.descendants.length; k++) {
+        while(!noElement && v.getK() != 0) {
+            for(int k = 0; k < v.getK(); k++) {
                 Vertex uV = radixTree[v.descendants[k]];
                 if(i == word.getNum().length() && uV.getH() == -1) {
                     return;
@@ -134,15 +136,17 @@ class TelephoneNumber {
                         nRadixTree++;
 
                         return;
-                    } else if(k == v.descendants.length - 1) {
-                        Vertex a = new Vertex(iWord, i, word.getNum().length());
-                        radixTree[nRadixTree] = a;
-                        v.addToDescendants(nRadixTree);
-                        nRadixTree++;
+                    } else if(k == v.getK() - 1) {
+                        noElement = true;
                     }
                 }
             }
         }
+        
+        Vertex a = new Vertex(iWord, i, word.getNum().length());
+        radixTree[nRadixTree] = a;
+        v.addToDescendants(nRadixTree);
+        nRadixTree++;
     }
 
     private int prefix(String num, int i, Vertex u) {
