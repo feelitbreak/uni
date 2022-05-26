@@ -108,19 +108,35 @@ class TelephoneNumber {
 
     private void addToTree(Word word) {
         int v = 0;
-        for(int i = 0; radixTree[v].getK() > 0 && i < word.getNum().length();) {
+        for(int i = 0; radixTree[v].getK() > 0 && i <= word.getNum().length();) {
             for(int u : radixTree[v].descendants) {
-                if(words[radixTree[u].getH()].getNum().charAt(radixTree[u].getI()) == word.getNum().charAt(i)) {
-                    if(words[radixTree[u].getH()].getNum().substring(radixTree[u].getI(), radixTree[u].getJ())
-                            .equals(word.getNum().substring(i, i + radixTree[u].getJ() - radixTree[u].getI()))) {
-                        v = u;
-                        i += radixTree[u].getJ() - radixTree[u].getI();
+                Vertex uV = radixTree[u];
+                if(i == word.getNum().length() && uV.getH() == -1) {
+                    
+                }
+                int j = prefix(word.getNum(), i, uV);
+                if(uV.getI() + j == uV.getJ()) {
+                    if(i + j == word.getNum().length() && uV.getK() == 0) {
+                        return;
                     } else {
-                        int j =
+                        v = u;
+                        i += j;
                     }
                 }
+
             }
         }
+    }
+
+    private int prefix(String num, int i, Vertex u) {
+        int j;
+        String numToCompare = words[u.getH()].getNum();
+        for(j = 0; i + j < num.length() && u.getI() + j < u.getJ(); j++) {
+            if(num.charAt(i + j) != numToCompare.charAt(u.getI() + j)) {
+                break;
+            }
+        }
+        return j;
     }
 
     public void formSolution() {
