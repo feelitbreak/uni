@@ -205,7 +205,7 @@ class TelephoneNumber {
             Vertex v = radixTree[0];
             int j = i;
             boolean noElement = false;
-            while(j <= num.length() - 1 && !noElement) {
+            while(j <= num.length() - 1 && !noElement && v.getK() != 0) {
                 for(int s = 0; s < v.getK(); s++) {
                     Vertex uV = radixTree[v.descendants[s]];
                     String wNum = words[uV.getH()].getNum();
@@ -222,6 +222,10 @@ class TelephoneNumber {
                             k[i] = k[j + uV.getJ() - uV.getI()] + 1;
                             sol[i] = uV.getH();
                             ind[i] = j + uV.getJ() - uV.getI();
+                            v = uV;
+                            j += uV.getJ() - uV.getI();
+                            break;
+                        } else if(!uV.isEndWord() || k[j + uV.getJ() - uV.getI()] == 0 || k[i] > k[j + uV.getJ() - uV.getI()] + 1) {
                             v = uV;
                             j += uV.getJ() - uV.getI();
                             break;
