@@ -4,9 +4,9 @@ import java.util.*;
 class Vertex {
     public int[] descendants;
     private int k = 0;
-    private int h;
-    private int i;
-    private int j;
+    private final int h;
+    private final int i;
+    private final int j;
 
     public Vertex(int h, int i, int j) {
         descendants = new int[TelephoneNumber.MAX_DESCENDANTS];
@@ -27,24 +27,17 @@ class Vertex {
         return h;
     }
 
-    public void setH(int h) {
-        this.h = h;
-    }
-
     public int getI() {
         return i;
-    }
-
-    public void setI(int i) {
-        this.i = i;
     }
 
     public int getJ() {
         return j;
     }
 
-    public void setJ(int j) {
-        this.j = j;
+    public void addToDescendants(int v) {
+        descendants[k] = v;
+        k++;
     }
 }
 
@@ -74,7 +67,7 @@ class TelephoneNumber {
             "2", "2", "2", "3", "3", "3", "4", "4", "1", "1", "5", "5", "6",
             "6", "0", "7", "0", "7", "7", "8", "8", "8", "9", "9", "9", "0"
     };
-    private Vertex[] radixTree;
+    private final Vertex[] radixTree;
     private int nRadixTree = 0;
     private final int[] sol;
     private final int[] k;
@@ -101,29 +94,53 @@ class TelephoneNumber {
     public void buildRadixTree() {
         radixTree[0] = new Vertex(-1, -1, -1);
         nRadixTree++;
-        for (Word word : words) {
-            addToTree(word);
+        for (int i = 0; i < words.length; i++) {
+            addToTree(i);
         }
     }
 
-    private void addToTree(Word word) {
-        int v = 0;
-        for(int i = 0; radixTree[v].getK() > 0 && i <= word.getNum().length();) {
-            for(int u : radixTree[v].descendants) {
-                Vertex uV = radixTree[u];
+    private void addToTree(int iWord) {
+        Word word = words[iWord];
+        Vertex v = radixTree[0];
+        int i = 0;
+        while(true) {
+            for(int k = 0; k < v.descendants.length; k++) {
+                Vertex uV = radixTree[v.descendants[k]];
                 if(i == word.getNum().length() && uV.getH() == -1) {
-                    
-                }
-                int j = prefix(word.getNum(), i, uV);
-                if(uV.getI() + j == uV.getJ()) {
-                    if(i + j == word.getNum().length() && uV.getK() == 0) {
+                    return;
+                } else if (uV.getH() != -1) {
+                    int j = prefix(word.getNum(), i, uV);
+                    if (uV.getI() + j == uV.getJ()) {
+                        if (i + j == word.getNum().length() && uV.getK() == 0) {
+                            return;
+                        } else {
+                            v = uV;
+                            i += j;
+                            break;
+                        }
+                    } else if (j != 0) {
+                        Vertex a = new Vertex(iWord, i + j, word.getNum().length());
+                        Vertex b = new Vertex(uV.getH(), uV.getI() + j, uV.getJ());
+
+                        b.setK(uV.getK());
+                        System.arraycopy(uV.descendants, 0, b.descendants, 0, b.getK());
+                        uV.setK(0);
+                        radixTree[nRadixTree] = b;
+                        uV.addToDescendants(nRadixTree);
+                        nRadixTree++;
+
+                        radixTree[nRadixTree] = a;
+                        uV.addToDescendants(nRadixTree);
+                        nRadixTree++;
+
                         return;
-                    } else {
-                        v = u;
-                        i += j;
+                    } else if(k == v.descendants.length - 1) {
+                        Vertex a = new Vertex(iWord, i, word.getNum().length());
+                        radixTree[nRadixTree] = a;
+                        v.addToDescendants(nRadixTree);
+                        nRadixTree++;
                     }
                 }
-
             }
         }
     }
@@ -202,6 +219,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         TelephoneNumber tn = new TelephoneNumber();
+        tn.buildRadixTree();
         tn.formSolution();
         tn.out();
     }
