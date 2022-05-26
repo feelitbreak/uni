@@ -1,6 +1,53 @@
 import java.io.*;
 import java.util.*;
 
+class Vertex {
+    public int[] descendants;
+    private int k = 0;
+    private int h;
+    private int i;
+    private int j;
+
+    public Vertex(int h, int i, int j) {
+        descendants = new int[TelephoneNumber.MAX_DESCENDANTS];
+        this.h = h;
+        this.i = i;
+        this.j = j;
+    }
+
+    public int getK() {
+        return k;
+    }
+
+    public void setK(int k) {
+        this.k = k;
+    }
+
+    public int getH() {
+        return h;
+    }
+
+    public void setH(int h) {
+        this.h = h;
+    }
+
+    public int getI() {
+        return i;
+    }
+
+    public void setI(int i) {
+        this.i = i;
+    }
+
+    public int getJ() {
+        return j;
+    }
+
+    public void setJ(int j) {
+        this.j = j;
+    }
+}
+
 class Word {
     private final String word;
     private final String num;
@@ -27,9 +74,13 @@ class TelephoneNumber {
             "2", "2", "2", "3", "3", "3", "4", "4", "1", "1", "5", "5", "6",
             "6", "0", "7", "0", "7", "7", "8", "8", "8", "9", "9", "9", "0"
     };
+    private Vertex[] radixTree;
+    private int nRadixTree = 0;
     private final int[] sol;
     private final int[] k;
     private int[] res;
+
+    public static final int MAX_DESCENDANTS = 10;
 
     public TelephoneNumber() throws IOException {
         BufferedReader br = new BufferedReader(new FileReader("input.txt"));
@@ -43,6 +94,33 @@ class TelephoneNumber {
         }
         sol = new int[num.length()];
         k = new int[num.length()];
+
+        radixTree = new Vertex[2 * n + 2];
+    }
+
+    public void buildRadixTree() {
+        radixTree[0] = new Vertex(-1, -1, -1);
+        nRadixTree++;
+        for (Word word : words) {
+            addToTree(word);
+        }
+    }
+
+    private void addToTree(Word word) {
+        int v = 0;
+        for(int i = 0; radixTree[v].getK() > 0 && i < word.getNum().length();) {
+            for(int u : radixTree[v].descendants) {
+                if(words[radixTree[u].getH()].getNum().charAt(radixTree[u].getI()) == word.getNum().charAt(i)) {
+                    if(words[radixTree[u].getH()].getNum().substring(radixTree[u].getI(), radixTree[u].getJ())
+                            .equals(word.getNum().substring(i, i + radixTree[u].getJ() - radixTree[u].getI()))) {
+                        v = u;
+                        i += radixTree[u].getJ() - radixTree[u].getI();
+                    } else {
+                        int j =
+                    }
+                }
+            }
+        }
     }
 
     public void formSolution() {
