@@ -7,6 +7,7 @@ class Vertex {
     private final int h;
     private final int i;
     private final int j;
+    private boolean endWord = true;
 
     public Vertex(int h, int i, int j) {
         descendants = new int[TelephoneNumber.MAX_DESCENDANTS];
@@ -33,6 +34,14 @@ class Vertex {
 
     public int getJ() {
         return j;
+    }
+
+    public boolean isEndWord() {
+        return endWord;
+    }
+
+    public void setEndWord(boolean endWord) {
+        this.endWord = endWord;
     }
 
     public void addToDescendants(int v) {
@@ -93,6 +102,7 @@ class TelephoneNumber {
 
     public void buildRadixTree() {
         radixTree[0] = new Vertex(-1, -1, -1);
+        radixTree[0].setEndWord(false);
         nRadixTree++;
         for (int i = 0; i < words.length; i++) {
             addToTree(i);
@@ -108,41 +118,38 @@ class TelephoneNumber {
         while(!noElement && v.getK() != 0) {
             for(int k = 0; k < v.getK(); k++) {
                 Vertex uV = radixTree[v.descendants[k]];
-                if(i == word.getNum().length() && uV.getH() == -1) {
-                    return;
-                } else if (uV.getH() != -1) {
-                    int j = prefix(word.getNum(), i, uV);
-                    if (uV.getI() + j == uV.getJ()) {
-                        if (i + j == word.getNum().length() && uV.getK() == 0) {
-                            return;
-                        } else {
-                            v = uV;
-                            i += j;
-                            break;
-                        }
-                    } else if (j != 0) {
-                        Vertex a = new Vertex(iWord, i + j, word.getNum().length());
-                        Vertex b = new Vertex(uV.getH(), uV.getI() + j, uV.getJ());
-
-                        b.setK(uV.getK());
-                        System.arraycopy(uV.descendants, 0, b.descendants, 0, b.getK());
-                        uV.setK(0);
-                        radixTree[nRadixTree] = b;
-                        uV.addToDescendants(nRadixTree);
-                        nRadixTree++;
-
-                        radixTree[nRadixTree] = a;
-                        uV.addToDescendants(nRadixTree);
-                        nRadixTree++;
-
+                int j = prefix(word.getNum(), i, uV);
+                if (uV.getI() + j == uV.getJ()) {
+                    if (i + j == word.getNum().length() && uV.isEndWord()) {
                         return;
-                    } else if(k == v.getK() - 1) {
-                        noElement = true;
+                    } else {
+                        v = uV;
+                        i += j;
+                        break;
                     }
+                } else if (j != 0) {
+                    Vertex a = new Vertex(iWord, i + j, word.getNum().length());
+                    Vertex b = new Vertex(uV.getH(), uV.getI() + j, uV.getJ());
+
+                    b.setK(uV.getK());
+                    System.arraycopy(uV.descendants, 0, b.descendants, 0, b.getK());
+                    uV.setK(0);
+                    radixTree[nRadixTree] = b;
+                    uV.addToDescendants(nRadixTree);
+                    nRadixTree++;
+                    uV.setEndWord(false);
+
+                    radixTree[nRadixTree] = a;
+                    uV.addToDescendants(nRadixTree);
+                    nRadixTree++;
+
+                    return;
+                } else if (k == v.getK() - 1) {
+                    noElement = true;
                 }
             }
         }
-        
+
         Vertex a = new Vertex(iWord, i, word.getNum().length());
         radixTree[nRadixTree] = a;
         v.addToDescendants(nRadixTree);
