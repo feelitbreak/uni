@@ -1,0 +1,33 @@
+Important: do not use packages; output files must not contain blank lines in the end.
+
+
+
+Precondition:
+
+The "input1.txt" file contains two different integers separated with comma.
+
+The "input2.txt" file contains integers separated with space.
+
+
+
+Task:
+
+1) Read X and Y from "input1.txt" file
+
+2) Go over integers from "input2.txt" file and:
+
+- If integer can be divided by X print "Hot" in the "output.txt"
+
+- If integer can be divided by Y print "Dog" in the "output.txt"
+
+- If integer can be divided by both X and Y print "HotDog" in the "output.txt"
+
+- Otherwise print the integer itself in the "output.txt"
+
+Results in "output.txt" file must be separated with space.
+
+
+
+Note:
+
+Check the "input1.txt", "input2.txt" and "output.txt" files in "Tests" tab for an example

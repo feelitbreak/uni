@@ -1,0 +1,27 @@
+Important: do not use packages; output files must NOT contain blank lines in the end.
+
+
+
+Precondition:
+
+The "input.txt" file contains not empty string in lower case
+
+
+
+Task:
+
+1) Read string from the "input.txt" file
+
+2) Remove characters from the string that are repeated maximum number of times
+
+3) If all characters are repeated the same number of times - keep the string as is
+
+4) Print the result string to the "output1.txt" file
+
+5) In the "output2.txt" file print each character of initial string and number of times it was repeated (in format "a:3"). These records must be separated with space and sorted by number of repetitions from greatest to lowest (if 2 characters have same number of repetitions - sort by character's code in ascending order).
+
+
+
+Note:
+
+Check the "input.txt", "output1.txt" and "output2.txt" files in "Tests" tab for an example
