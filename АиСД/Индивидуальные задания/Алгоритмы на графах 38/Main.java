@@ -38,15 +38,17 @@ class Edge {
 }
 
 class AgeGroups {
-    protected int[] group1;
-    protected int[] group2;
-    protected static final int MIN_AGE = 18;
-    protected static final int MAX_AGE = 60;
-    protected static final int SINGLE_ROOM_VERTEX = MAX_AGE - MIN_AGE + 1;
     private int nVertices1 = 0;
     private int nVertices2 = 0;
     private int n = 0;
     private int m = 0;
+
+    protected int[] group1;
+    protected int[] group2;
+
+    protected static final int MIN_AGE = 18;
+    protected static final int MAX_AGE = 60;
+    protected static final int SINGLE_ROOM_VERTEX = MAX_AGE - MIN_AGE + 1;
 
     protected AgeGroups() throws IOException {
         this.group1 = new int[MAX_AGE - MIN_AGE + 1];
@@ -63,18 +65,6 @@ class AgeGroups {
             this.group2[SINGLE_ROOM_VERTEX] = Math.abs(this.n - this.m);
             this.nVertices2++;
         }
-    }
-
-    protected int getPeopleInGroup1(int age) {
-        return this.group1[age - MIN_AGE];
-    }
-
-    protected int getPeopleInGroup2(int age) {
-        return this.group2[age - MIN_AGE];
-    }
-
-    protected int getSingleRoomPeople() {
-        return this.group2[SINGLE_ROOM_VERTEX];
     }
     
     protected int getNumOfFlowEdges() {
@@ -128,14 +118,13 @@ class AgeGroups {
     }
 }
 
-class Graph extends AgeGroups {
-    private final Edge[] flowEdges;
-    private final Map<Integer, List<Integer>> network;
-    private final int result = 0;
-    private final int s;
-    private final int t;
+class InitialGraph extends AgeGroups {
+    protected final Edge[] flowEdges;
+    protected final Map<Integer, List<Integer>> network;
+    protected final int s;
+    protected final int t;
     
-    public Graph() throws IOException {
+    protected InitialGraph() throws IOException {
         this.flowEdges = new Edge[this.getNumOfFlowEdges()];
 
         final double defaultLoadFactor = 0.75;
@@ -146,17 +135,12 @@ class Graph extends AgeGroups {
         this.buildNetwork();
     }
 
-    public void out() throws FileNotFoundException {
-        PrintWriter pw = new PrintWriter("output.txt");
-        pw.printf("%.1f", this.result / 2.0);
-        pw.close();
-    }
-
     private void buildNetwork() {
         int i = 0;
         i = this.connectSToGroup1(i);
         i = this.connectGroups(i);
         i = this.connectGroup2ToT(i);
+
         assert(i == this.getNumOfFlowEdges());
     }
 
@@ -245,6 +229,20 @@ class Graph extends AgeGroups {
             }
         }
         return i;
+    }
+}
+
+class Graph extends InitialGraph {
+    private final int result = 0;
+
+    public Graph() throws IOException {
+        
+    }
+
+    public void out() throws FileNotFoundException {
+        PrintWriter pw = new PrintWriter("output.txt");
+        pw.printf("%.1f", this.result / 2.0);
+        pw.close();
     }
 }
 
