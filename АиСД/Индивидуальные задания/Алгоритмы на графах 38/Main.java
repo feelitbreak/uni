@@ -38,11 +38,11 @@ class Edge {
 }
 
 class AgeGroups {
-    private int[] group1;
-    private int[] group2;
-    private static final int MIN_AGE = 18;
-    private static final int MAX_AGE = 60;
-    private static final int SINGLE_ROOM_VERTEX = MAX_AGE - MIN_AGE + 1;
+    protected int[] group1;
+    protected int[] group2;
+    protected static final int MIN_AGE = 18;
+    protected static final int MAX_AGE = 60;
+    protected static final int SINGLE_ROOM_VERTEX = MAX_AGE - MIN_AGE + 1;
     private int nVertices1 = 0;
     private int nVertices2 = 0;
     private int n = 0;
@@ -77,13 +77,16 @@ class AgeGroups {
         return this.group2[SINGLE_ROOM_VERTEX];
     }
     
-    protected int getNumberOfFlowEdges() {
+    protected int getNumOfFlowEdges() {
         return (this.nVertices1 * this.nVertices2 + this.nVertices1 + this.nVertices2) * 2;
     }
 
-    protected int getNumberOfVertices()
-    {
+    protected int getNumOfVertices() {
         return this.nVertices1 + this.nVertices2 + 2;
+    }
+
+    protected int getNumOfVerticesInGroup1() {
+        return this.nVertices1;
     }
 
     private void inputGroups()  throws IOException {
@@ -127,17 +130,16 @@ class AgeGroups {
 
 class Graph extends AgeGroups {
     private final Edge[] flowEdges;
-    private final List<List<Integer>> network;
+    private final Map<Integer, List<Integer>> network;
     private final int result = 0;
+    private int s;
+    private int t;
     
     public Graph() throws IOException {
-        this.flowEdges = new Edge[this.getNumberOfFlowEdges()];
+        this.flowEdges = new Edge[this.getNumOfFlowEdges()];
 
-        this.network = new ArrayList<>(this.getNumberOfVertices());
-        for (int i = 0; i < this.getNumberOfVertices(); i++)
-        {
-            this.network.add(new ArrayList<>());
-        }
+        final double defaultLoadFactor = 0.75;
+        this.network = new HashMap<>((int)(this.getNumOfVertices() / defaultLoadFactor) + 1);
 
         this.buildNetwork();
     }
@@ -148,9 +150,79 @@ class Graph extends AgeGroups {
         pw.close();
     }
 
-    private void buildNetwork()
-    {
-        
+    private void buildNetwork() {
+        this.s = 1;
+        int i = 0;
+        i = this.connectSToGroup1(i);
+        i = this.connectGroups(i);
+        assert(i == this.getNumOfFlowEdges());
+    }
+
+    private int connectSToGroup1(int i) {
+        network.put(this.s, new ArrayList<>());
+
+        int vertexNum = this.s + 1;
+        for (int j = 0; j < this.group1.length; j++) {
+            if (group1[j] != 0) {
+                network.put(vertexNum, new ArrayList<>());
+
+                flowEdges[i] = new Edge(this.s, group1[j], 0, 0, vertexNum);
+                network.get(this.s).add(i);
+                i++;
+
+                flowEdges[i] = new Edge(vertexNum, 0, 0, 0, this.s);
+                network.get(vertexNum).add(i);
+                i++;
+
+                vertexNum++;
+            }
+        }
+
+        return i;
+    }
+
+    private int connectGroups(int i) {
+        int vertexNumGroup1 = this.s + 1;
+        int vertexNumGroup2 = this.s + this.getNumOfVerticesInGroup1() + 1;
+        for (int j = 0; j < this.group1.length; j++) {
+            if (group1[j] != 0) {
+                for (int k = 0; k < this.group2.length; k++) {
+                    if (group2[k] != 0) {
+                        network.put(vertexNumGroup2, new ArrayList<>());
+
+                        int weight;
+                        if (k == SINGLE_ROOM_VERTEX) {
+                            weight = j + MIN_AGE;
+                        } else {
+                            weight = 2 * Math.abs(j - k);
+                        }
+
+                        flowEdges[i] = new Edge(
+                                vertexNumGroup1,
+                                Math.min(group1[j], group2[k]),
+                                0,
+                                weight,
+                                vertexNumGroup2);
+                        network.get(vertexNumGroup1).add(i);
+                        i++;
+
+                        flowEdges[i] = new Edge(
+                                vertexNumGroup2,
+                                0,
+                                0,
+                                - weight,
+                                vertexNumGroup1);
+                        network.get(vertexNumGroup2).add(i);
+                        i++;
+
+                        vertexNumGroup2++;
+                    }
+                }
+
+                vertexNumGroup1++;
+            }
+        }
+        return i;
     }
 }
 
