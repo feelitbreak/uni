@@ -208,6 +208,7 @@ class InitialGraph extends AgeGroups {
                 vertexNumGroup1++;
             }
         }
+
         return i;
     }
 
@@ -228,6 +229,7 @@ class InitialGraph extends AgeGroups {
                 vertexNum++;
             }
         }
+
         return i;
     }
 }
@@ -236,10 +238,10 @@ class Graph extends InitialGraph {
     private final int result = 0;
 
     public Graph() throws IOException {
-        
+
     }
 
-    public void out() throws FileNotFoundException {
+    public void outResult() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("output.txt");
         pw.printf("%.1f", this.result / 2.0);
         pw.close();
@@ -250,6 +252,6 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Graph myGraph = new Graph();
-        myGraph.out();
+        myGraph.outResult();
     }
 }
