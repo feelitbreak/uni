@@ -177,13 +177,13 @@ class InitialGraph extends AgeGroups {
 
     private int connectGroups(int i) {
         int vertexNumGroup1 = this.s + 1;
-        
+
         for (int j = 0; j < this.group1.length; j++) {
-            if (group1[j] != 0) {
+            if (this.group1[j] != 0) {
                 int vertexNumGroup2 = this.s + this.getNumOfVerticesInGroup1() + 1;
 
                 for (int k = 0; k < this.group2.length; k++) {
-                    if (group2[k] != 0) {
+                    if (this.group2[k] != 0) {
                         int weight;
                         if (k == SINGLE_ROOM_VERTEX) {
                             weight = j + MIN_AGE;
@@ -191,7 +191,7 @@ class InitialGraph extends AgeGroups {
                             weight = 2 * Math.abs(j - k);
                         }
 
-                        int cap = Math.min(group1[j], group2[k]);
+                        int cap = Math.min(this.group1[j], this.group2[k]);
 
                         i = this.addEdge(vertexNumGroup1, cap, weight, vertexNumGroup2, vertexNumGroup1, i);
                         i = this.addEdge(vertexNumGroup2, 0, - weight, vertexNumGroup1, vertexNumGroup2, i);
@@ -208,7 +208,7 @@ class InitialGraph extends AgeGroups {
 
     private int connectGroup2ToT(int i) {
         int vertexNum = this.s + this.getNumOfVerticesInGroup1() + 1;
-        for (int nPeople : group2) {
+        for (int nPeople : this.group2) {
             if (nPeople != 0) {
                 i = this.addEdge(vertexNum, nPeople, 0, this.t, vertexNum, i);
                 i = this.addEdge(this.t, 0, 0, vertexNum, this.t, i);
@@ -220,8 +220,8 @@ class InitialGraph extends AgeGroups {
     }
 
     private int addEdge(int source, int cap, int weight, int target, int networkInd, int i) {
-        flowEdges[i] = new Edge(source, cap, 0, weight, target);
-        network.get(networkInd).add(i);
+        this.flowEdges[i] = new Edge(source, cap, 0, weight, target);
+        this.network.get(networkInd).add(i);
         return i + 1;
     }
 }
