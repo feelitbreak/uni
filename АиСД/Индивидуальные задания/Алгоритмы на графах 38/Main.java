@@ -129,6 +129,10 @@ class InitialGraph extends AgeGroups {
 
         final double defaultLoadFactor = 0.75;
         this.network = new HashMap<>((int)(this.getNumOfVertices() / defaultLoadFactor) + 1);
+        for (int i = 1; i <= this.getNumOfVertices(); i++)
+        {
+            this.network.put(i, new ArrayList<>(this.getNumOfVertices()));
+        }
 
         this.s = 1;
         this.t = this.getNumOfVertices();
@@ -145,9 +149,8 @@ class InitialGraph extends AgeGroups {
     }
 
     private int connectSToGroup1(int i) {
-        network.put(this.s, new ArrayList<>());
-
         int vertexNum = this.s + 1;
+
         for (int nPeople : this.group1) {
             if (nPeople != 0) {
                 network.put(vertexNum, new ArrayList<>());
@@ -169,13 +172,13 @@ class InitialGraph extends AgeGroups {
 
     private int connectGroups(int i) {
         int vertexNumGroup1 = this.s + 1;
-        int vertexNumGroup2 = this.s + this.getNumOfVerticesInGroup1() + 1;
+
         for (int j = 0; j < this.group1.length; j++) {
+            int vertexNumGroup2 = this.s + this.getNumOfVerticesInGroup1() + 1;
+
             if (group1[j] != 0) {
                 for (int k = 0; k < this.group2.length; k++) {
                     if (group2[k] != 0) {
-                        network.put(vertexNumGroup2, new ArrayList<>());
-
                         int weight;
                         if (k == SINGLE_ROOM_VERTEX) {
                             weight = j + MIN_AGE;
@@ -183,21 +186,13 @@ class InitialGraph extends AgeGroups {
                             weight = 2 * Math.abs(j - k);
                         }
 
-                        flowEdges[i] = new Edge(
-                                vertexNumGroup1,
-                                Math.min(group1[j], group2[k]),
-                                0,
-                                weight,
-                                vertexNumGroup2);
+                        int cap = Math.min(group1[j], group2[k]);
+
+                        flowEdges[i] = new Edge(vertexNumGroup1, cap, 0, weight, vertexNumGroup2);
                         network.get(vertexNumGroup1).add(i);
                         i++;
 
-                        flowEdges[i] = new Edge(
-                                vertexNumGroup2,
-                                0,
-                                0,
-                                - weight,
-                                vertexNumGroup1);
+                        flowEdges[i] = new Edge(vertexNumGroup2, 0, 0, - weight, vertexNumGroup1);
                         network.get(vertexNumGroup2).add(i);
                         i++;
 
@@ -213,9 +208,8 @@ class InitialGraph extends AgeGroups {
     }
 
     private int connectGroup2ToT(int i) {
-        network.put(this.t, new ArrayList<>());
-
         int vertexNum = this.s + this.getNumOfVerticesInGroup1() + 1;
+
         for (int nPeople : group2) {
             if (nPeople != 0) {
                 flowEdges[i] = new Edge(vertexNum, nPeople, 0, 0, this.t);
