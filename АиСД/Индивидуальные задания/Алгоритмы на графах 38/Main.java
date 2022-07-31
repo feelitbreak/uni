@@ -132,8 +132,8 @@ class Graph extends AgeGroups {
     private final Edge[] flowEdges;
     private final Map<Integer, List<Integer>> network;
     private final int result = 0;
-    private int s;
-    private int t;
+    private final int s;
+    private final int t;
     
     public Graph() throws IOException {
         this.flowEdges = new Edge[this.getNumOfFlowEdges()];
@@ -141,6 +141,8 @@ class Graph extends AgeGroups {
         final double defaultLoadFactor = 0.75;
         this.network = new HashMap<>((int)(this.getNumOfVertices() / defaultLoadFactor) + 1);
 
+        this.s = 1;
+        this.t = this.getNumOfVertices();
         this.buildNetwork();
     }
 
@@ -151,10 +153,10 @@ class Graph extends AgeGroups {
     }
 
     private void buildNetwork() {
-        this.s = 1;
         int i = 0;
         i = this.connectSToGroup1(i);
         i = this.connectGroups(i);
+        i = this.connectGroup2ToT(i);
         assert(i == this.getNumOfFlowEdges());
     }
 
@@ -162,11 +164,11 @@ class Graph extends AgeGroups {
         network.put(this.s, new ArrayList<>());
 
         int vertexNum = this.s + 1;
-        for (int j = 0; j < this.group1.length; j++) {
-            if (group1[j] != 0) {
+        for (int nPeople : this.group1) {
+            if (nPeople != 0) {
                 network.put(vertexNum, new ArrayList<>());
 
-                flowEdges[i] = new Edge(this.s, group1[j], 0, 0, vertexNum);
+                flowEdges[i] = new Edge(this.s, nPeople, 0, 0, vertexNum);
                 network.get(this.s).add(i);
                 i++;
 
@@ -220,6 +222,26 @@ class Graph extends AgeGroups {
                 }
 
                 vertexNumGroup1++;
+            }
+        }
+        return i;
+    }
+
+    private int connectGroup2ToT(int i) {
+        network.put(this.t, new ArrayList<>());
+
+        int vertexNum = this.s + this.getNumOfVerticesInGroup1() + 1;
+        for (int nPeople : group2) {
+            if (nPeople != 0) {
+                flowEdges[i] = new Edge(vertexNum, nPeople, 0, 0, this.t);
+                network.get(vertexNum).add(i);
+                i++;
+
+                flowEdges[i] = new Edge(this.t, 0, 0, 0, vertexNum);
+                network.get(this.t).add(i);
+                i++;
+
+                vertexNum++;
             }
         }
         return i;
