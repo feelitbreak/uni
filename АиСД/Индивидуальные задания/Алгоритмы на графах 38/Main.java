@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 class Edge {
     private final int source;
@@ -50,12 +51,12 @@ class AgeGroups {
     protected AgeGroups() throws IOException {
         this.group1 = new int[MAX_AGE - MIN_AGE + 1];
         this.group2 = new int[MAX_AGE - MIN_AGE + 2];
-        inputGroups();
+        this.inputGroups();
 
         if (this.m > this.n)
         {
-            switchGroups();
-            switchVertices();
+            this.switchGroups();
+            this.switchVertices();
         }
 
         if (this.n != this.m) {
@@ -78,6 +79,11 @@ class AgeGroups {
     
     protected int getNumberOfFlowEdges() {
         return (this.nVertices1 * this.nVertices2 + this.nVertices1 + this.nVertices2) * 2;
+    }
+
+    protected int getNumberOfVertices()
+    {
+        return this.nVertices1 + this.nVertices2 + 2;
     }
 
     private void inputGroups()  throws IOException {
@@ -120,23 +126,31 @@ class AgeGroups {
 }
 
 class Graph extends AgeGroups {
-    private Edge[] flowEdges;
-    private int dis = 0;
+    private final Edge[] flowEdges;
+    private final List<List<Integer>> network;
+    private final int result = 0;
     
     public Graph() throws IOException {
         this.flowEdges = new Edge[this.getNumberOfFlowEdges()];
 
+        this.network = new ArrayList<>(this.getNumberOfVertices());
+        for (int i = 0; i < this.getNumberOfVertices(); i++)
+        {
+            this.network.add(new ArrayList<>());
+        }
+
+        this.buildNetwork();
     }
 
     public void out() throws FileNotFoundException {
         PrintWriter pw = new PrintWriter("output.txt");
-        pw.printf("%.1f", this.dis / 2.0);
+        pw.printf("%.1f", this.result / 2.0);
         pw.close();
     }
 
     private void buildNetwork()
     {
-
+        
     }
 }
 
