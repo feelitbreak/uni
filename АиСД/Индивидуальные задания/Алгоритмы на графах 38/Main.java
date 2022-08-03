@@ -237,10 +237,8 @@ class Graph extends InitialGraph {
     }
 
     public void findMaxFlowMinCost() {
-        while (true)
-        {
-            this.findShortestPathBellmanFord();
-            
+        while (this.findShortestPathBellmanFord()) {
+
         }
     }
 
@@ -250,25 +248,31 @@ class Graph extends InitialGraph {
         pw.close();
     }
 
-    private void findShortestPathBellmanFord() {
+    private boolean findShortestPathBellmanFord() {
         dist[super.s - 1] = 0;
         Arrays.fill(this.dist, super.s, this.dist.length, Integer.MAX_VALUE);
         Arrays.fill(this.pred, 0);
 
-        for (int i = 0; i < super.getNumOfVertices() - 1; i++)
-        {
-            for (Edge edge : super.flowEdges)
-            {
-                int u = edge.getSource();
-                int v = edge.getTarget();
-                int c = edge.getWeight();
-                if (this.dist[u - 1] > this.dist[v - 1] + c)
-                {
-                    this.dist[u - 1] = this.dist[v - 1] + c;
-                    this.pred[u - 1] = v;
+        for (int i = 0; i < super.getNumOfVertices() - 1; i++) {
+            for (Edge edge : super.flowEdges) {
+                if (edge.getCapacity() != 0) {
+                    int u = edge.getSource();
+                    int v = edge.getTarget();
+                    int c = edge.getWeight();
+
+                    if (this.dist[u - 1] > this.dist[v - 1] + c) {
+                        this.dist[u - 1] = this.dist[v - 1] + c;
+                        this.pred[u - 1] = v;
+                    }
                 }
             }
         }
+
+        return dist[super.t - 1] != Integer.MAX_VALUE;
+    }
+
+    private void processFlowFordFulkerson() {
+
     }
 }
 
