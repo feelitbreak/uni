@@ -139,17 +139,17 @@ class InitialGraph extends AgeGroups {
     protected final int t;
     
     protected InitialGraph() throws IOException {
-        this.flowEdges = new Edge[this.getNumOfFlowEdges()];
+        this.flowEdges = new Edge[super.getNumOfFlowEdges()];
 
         final double defaultLoadFactor = 0.75;
-        this.network = new HashMap<>((int)(this.getNumOfVertices() / defaultLoadFactor) + 1);
-        for (int i = 1; i <= this.getNumOfVertices(); i++)
+        this.network = new HashMap<>((int)(super.getNumOfVertices() / defaultLoadFactor) + 1);
+        for (int i = 1; i <= super.getNumOfVertices(); i++)
         {
-            this.network.put(i, new ArrayList<>(this.getNumOfVertices()));
+            this.network.put(i, new ArrayList<>(super.getNumOfVertices()));
         }
 
         this.s = 1;
-        this.t = this.getNumOfVertices();
+        this.t = super.getNumOfVertices();
         this.buildNetwork();
     }
 
@@ -159,12 +159,12 @@ class InitialGraph extends AgeGroups {
         i = this.connectGroups(i);
         i = this.connectGroup2ToT(i);
 
-        assert(i == this.getNumOfFlowEdges());
+        assert(i == super.getNumOfFlowEdges());
     }
 
     private int connectSToGroup1(int i) {
         int vertexNum = this.s + 1;
-        for (int nPeople : this.group1) {
+        for (int nPeople : super.group1) {
             if (nPeople != 0) {
                 i = this.addEdge(this.s, nPeople, 0, vertexNum, this.s, i);
                 i = this.addEdge(vertexNum, 0, 0, this.s, vertexNum, i);
@@ -178,12 +178,12 @@ class InitialGraph extends AgeGroups {
     private int connectGroups(int i) {
         int vertexNumGroup1 = this.s + 1;
 
-        for (int j = 0; j < this.group1.length; j++) {
-            if (this.group1[j] != 0) {
-                int vertexNumGroup2 = this.s + this.getNumOfVerticesInGroup1() + 1;
+        for (int j = 0; j < super.group1.length; j++) {
+            if (super.group1[j] != 0) {
+                int vertexNumGroup2 = this.s + super.getNumOfVerticesInGroup1() + 1;
 
-                for (int k = 0; k < this.group2.length; k++) {
-                    if (this.group2[k] != 0) {
+                for (int k = 0; k < super.group2.length; k++) {
+                    if (super.group2[k] != 0) {
                         int weight;
                         if (k == SINGLE_ROOM_VERTEX) {
                             weight = j + MIN_AGE;
@@ -191,7 +191,7 @@ class InitialGraph extends AgeGroups {
                             weight = 2 * Math.abs(j - k);
                         }
 
-                        int cap = Math.min(this.group1[j], this.group2[k]);
+                        int cap = Math.min(super.group1[j], super.group2[k]);
 
                         i = this.addEdge(vertexNumGroup1, cap, weight, vertexNumGroup2, vertexNumGroup1, i);
                         i = this.addEdge(vertexNumGroup2, 0, - weight, vertexNumGroup1, vertexNumGroup2, i);
@@ -207,8 +207,8 @@ class InitialGraph extends AgeGroups {
     }
 
     private int connectGroup2ToT(int i) {
-        int vertexNum = this.s + this.getNumOfVerticesInGroup1() + 1;
-        for (int nPeople : this.group2) {
+        int vertexNum = this.s + super.getNumOfVerticesInGroup1() + 1;
+        for (int nPeople : super.group2) {
             if (nPeople != 0) {
                 i = this.addEdge(vertexNum, nPeople, 0, this.t, vertexNum, i);
                 i = this.addEdge(this.t, 0, 0, vertexNum, this.t, i);
@@ -228,9 +228,20 @@ class InitialGraph extends AgeGroups {
 
 class Graph extends InitialGraph {
     private final int result = 0;
+    private int[] dist;
+    private int[] pred;
 
     public Graph() throws IOException {
+        this.dist = new int[super.getNumOfVertices()];
+        this.pred = new int[super.getNumOfVertices()];
+    }
 
+    public void findMaxFlowMinCost() {
+        while (true)
+        {
+            this.findShortestPathBellmanFord();
+            
+        }
     }
 
     public void outResult() throws FileNotFoundException {
@@ -238,12 +249,34 @@ class Graph extends InitialGraph {
         pw.printf("%.1f", this.result / 2.0);
         pw.close();
     }
+
+    private void findShortestPathBellmanFord() {
+        dist[super.s - 1] = 0;
+        Arrays.fill(this.dist, super.s, this.dist.length, Integer.MAX_VALUE);
+        Arrays.fill(this.pred, 0);
+
+        for (int i = 0; i < super.getNumOfVertices() - 1; i++)
+        {
+            for (Edge edge : super.flowEdges)
+            {
+                int u = edge.getSource();
+                int v = edge.getTarget();
+                int c = edge.getWeight();
+                if (this.dist[u - 1] > this.dist[v - 1] + c)
+                {
+                    this.dist[u - 1] = this.dist[v - 1] + c;
+                    this.pred[u - 1] = v;
+                }
+            }
+        }
+    }
 }
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
         Graph myGraph = new Graph();
+        myGraph.findMaxFlowMinCost();
         myGraph.outResult();
     }
 }
