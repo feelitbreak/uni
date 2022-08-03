@@ -227,7 +227,7 @@ class InitialGraph extends AgeGroups {
 }
 
 class Graph extends InitialGraph {
-    private final int result = 0;
+    private long result = 0;
     private final int[] dist;
     private final int[] pred;
 
@@ -239,6 +239,13 @@ class Graph extends InitialGraph {
     public void findMaxFlowMinCost() {
         while (this.findShortestPathBellmanFord()) {
             this.processFlowFordFulkerson();
+        }
+    }
+
+    public void countDiscontent() {
+        for (int i = 0; i < super.flowEdges.length; i += 2) {
+            Edge edge = super.flowEdges[i];
+            result += (long)edge.getFlow() * (long)edge.getWeight();
         }
     }
 
@@ -311,6 +318,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         Graph myGraph = new Graph();
         myGraph.findMaxFlowMinCost();
+        myGraph.countDiscontent();
         myGraph.outResult();
     }
 }
