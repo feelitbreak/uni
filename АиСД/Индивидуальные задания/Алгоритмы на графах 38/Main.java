@@ -20,10 +20,6 @@ class Edge {
         return source;
     }
 
-    public int getCapacity() {
-        return capacity;
-    }
-
     public int getFlow() {
         return flow;
     }
@@ -38,6 +34,10 @@ class Edge {
 
     public int getTarget() {
         return target;
+    }
+
+    public int available() {
+        return this.capacity - this.flow;
     }
 }
 
@@ -228,8 +228,8 @@ class InitialGraph extends AgeGroups {
 
 class Graph extends InitialGraph {
     private final int result = 0;
-    private int[] dist;
-    private int[] pred;
+    private final int[] dist;
+    private final int[] pred;
 
     public Graph() throws IOException {
         this.dist = new int[super.getNumOfVertices()];
@@ -238,7 +238,7 @@ class Graph extends InitialGraph {
 
     public void findMaxFlowMinCost() {
         while (this.findShortestPathBellmanFord()) {
-
+            this.processFlowFordFulkerson();
         }
     }
 
@@ -249,30 +249,60 @@ class Graph extends InitialGraph {
     }
 
     private boolean findShortestPathBellmanFord() {
-        dist[super.s - 1] = 0;
+        this.dist[super.s - 1] = 0;
         Arrays.fill(this.dist, super.s, this.dist.length, Integer.MAX_VALUE);
-        Arrays.fill(this.pred, 0);
+        Arrays.fill(this.pred, -1);
 
         for (int i = 0; i < super.getNumOfVertices() - 1; i++) {
-            for (Edge edge : super.flowEdges) {
-                if (edge.getCapacity() != 0) {
+            for (int j = 0; j < super.flowEdges.length; j++) {
+                Edge edge = super.flowEdges[j];
+                if (edge.available() > 0) {
                     int u = edge.getSource();
                     int v = edge.getTarget();
                     int c = edge.getWeight();
 
                     if (this.dist[u - 1] > this.dist[v - 1] + c) {
                         this.dist[u - 1] = this.dist[v - 1] + c;
-                        this.pred[u - 1] = v;
+                        this.pred[u - 1] = j;
                     }
                 }
             }
         }
 
-        return dist[super.t - 1] != Integer.MAX_VALUE;
+        return this.dist[super.t - 1] != Integer.MAX_VALUE;
     }
 
     private void processFlowFordFulkerson() {
+        int cMin = this.findMinC();
+        for (int i = super.t; this.pred[i - 1] != -1; ) {
+            int edgeInd = this.pred[i - 1];
+            Edge edge = super.flowEdges[edgeInd];
 
+            edge.setFlow(edge.getFlow() + cMin);
+
+            Edge reverseEdge = super.flowEdges[edgeInd ^ 1];
+            reverseEdge.setFlow(reverseEdge.getFlow() - cMin);
+
+            i = edge.getSource();
+        }
+    }
+
+    private int findMinC() {
+        int edgeInd = this.pred[super.t - 1];
+        Edge edge = super.flowEdges[edgeInd];
+
+        int cMin = edge.available();
+        for (int i = edge.getSource(); this.pred[i - 1] != -1;) {
+            edgeInd = this.pred[i - 1];
+            edge = super.flowEdges[edgeInd];
+            if (edge.available() < cMin) {
+                cMin = edge.available();
+            }
+
+            i = edge.getSource();
+        }
+
+        return cMin;
     }
 }
 
