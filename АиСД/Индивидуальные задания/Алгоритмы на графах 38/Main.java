@@ -153,6 +153,14 @@ class InitialGraph extends AgeGroups {
         this.buildNetwork();
     }
 
+    protected int getSourceOfEdge(int edgeInd) {
+        return this.flowEdges[edgeInd].getSource();
+    }
+
+    protected int available(int edgeInd) {
+        return this.flowEdges[edgeInd].available();
+    }
+
     private void buildNetwork() {
         int i = 0;
         i = this.connectSToGroup1(i);
@@ -283,33 +291,33 @@ class Graph extends InitialGraph {
         int cMin = this.findMinC();
         for (int i = super.t; this.pred[i - 1] != -1; ) {
             int edgeInd = this.pred[i - 1];
-            Edge edge = super.flowEdges[edgeInd];
-
-            edge.setFlow(edge.getFlow() + cMin);
-
-            Edge reverseEdge = super.flowEdges[edgeInd ^ 1];
-            reverseEdge.setFlow(reverseEdge.getFlow() - cMin);
-
-            i = edge.getSource();
+            this.pushEdge(edgeInd, cMin);
+            i = super.getSourceOfEdge(edgeInd);
         }
     }
 
     private int findMinC() {
         int edgeInd = this.pred[super.t - 1];
-        Edge edge = super.flowEdges[edgeInd];
+        int cMin = super.available(edgeInd);
 
-        int cMin = edge.available();
-        for (int i = edge.getSource(); this.pred[i - 1] != -1;) {
+        for (int i = super.getSourceOfEdge(edgeInd); this.pred[i - 1] != -1;) {
             edgeInd = this.pred[i - 1];
-            edge = super.flowEdges[edgeInd];
-            if (edge.available() < cMin) {
-                cMin = edge.available();
+            if (super.available(edgeInd) < cMin) {
+                cMin = super.available(edgeInd);
             }
 
-            i = edge.getSource();
+            i = super.getSourceOfEdge(edgeInd);
         }
 
         return cMin;
+    }
+
+    private void pushEdge(int edgeInd, int flow) {
+        Edge edge = super.flowEdges[edgeInd];
+        edge.setFlow(edge.getFlow() + flow);
+
+        Edge reverseEdge = super.flowEdges[edgeInd ^ 1];
+        reverseEdge.setFlow(reverseEdge.getFlow() - flow);
     }
 }
 
