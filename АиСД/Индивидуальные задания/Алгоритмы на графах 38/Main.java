@@ -180,33 +180,42 @@ class InitialGraph extends AgeGroups {
 
     private int connectGroups(int i) {
         int vertexNumGroup1 = this.s + 1;
-
         for (int j = 0; j < super.group1.length; j++) {
             if (super.group1[j] != 0) {
-                int vertexNumGroup2 = this.s + super.getNumOfVerticesInGroup1() + 1;
-
-                for (int k = 0; k < super.group2.length; k++) {
-                    if (super.group2[k] != 0) {
-                        int weight;
-                        if (k == SINGLE_ROOM_VERTEX) {
-                            weight = j + MIN_AGE;
-                        } else {
-                            weight = 2 * Math.abs(j - k);
-                        }
-
-                        int cap = Math.min(super.group1[j], super.group2[k]);
-
-                        i = this.addEdge(vertexNumGroup1, cap, weight, vertexNumGroup2, i);
-                        i = this.addEdge(vertexNumGroup2, 0, - weight, vertexNumGroup1, i);
-                        vertexNumGroup2++;
-                    }
-                }
-
+                i = this.connectToGroup2(i, j, vertexNumGroup1);
                 vertexNumGroup1++;
             }
         }
 
         return i;
+    }
+
+    private int connectToGroup2(int i, int j, int vertexNumGroup1) {
+        int vertexNumGroup2 = this.s + super.getNumOfVerticesInGroup1() + 1;
+        for (int k = 0; k < super.group2.length; k++) {
+            if (super.group2[k] != 0) {
+                int weight = this.countWeight(j, k);
+                int cap = this.countCapacity(j, k);
+
+                i = this.addEdge(vertexNumGroup1, cap, weight, vertexNumGroup2, i);
+                i = this.addEdge(vertexNumGroup2, 0, - weight, vertexNumGroup1, i);
+                vertexNumGroup2++;
+            }
+        }
+
+        return i;
+    }
+
+    private int countWeight(int j, int k) {
+        if (k == SINGLE_ROOM_VERTEX) {
+            return j + MIN_AGE;
+        } else {
+            return 2 * Math.abs(j - k);
+        }
+    }
+
+    private int countCapacity(int j, int k) {
+        return Math.min(super.group1[j], super.group2[k]);
     }
 
     private int connectGroup2ToT(int i) {
@@ -247,7 +256,6 @@ class Graph extends InitialGraph {
     public void countDiscontent() {
         for (int i = 0; i < super.flowEdges.length; i += 2) {
             Edge edge = super.flowEdges[i];
-
             if (!edge.IsResidual()) {
                 result += (long) edge.getFlow() * (long) edge.getWeight();
             }
