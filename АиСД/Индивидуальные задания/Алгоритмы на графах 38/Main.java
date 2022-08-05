@@ -272,8 +272,8 @@ class Graph extends InitialGraph {
             for (int j = 0; j < super.flowEdges.length; j++) {
                 Edge edge = super.flowEdges[j];
                 if (edge.available() > 0) {
-                    int u = edge.getSource();
-                    int v = edge.getTarget();
+                    int v = edge.getSource();
+                    int u = edge.getTarget();
                     int c = edge.getWeight();
 
                     if (this.dist[u - 1] > this.dist[v - 1] + c) {
@@ -289,7 +289,7 @@ class Graph extends InitialGraph {
 
     private void processFlowFordFulkerson() {
         int cMin = this.findMinC();
-        for (int i = super.t; this.pred[i - 1] != -1; ) {
+        for (int i = super.t; this.pred[i - 1] != -1;) {
             int edgeInd = this.pred[i - 1];
             this.pushEdge(edgeInd, cMin);
             i = super.getSourceOfEdge(edgeInd);
