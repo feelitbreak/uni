@@ -138,20 +138,11 @@ class AgeGroups {
 
 class InitialGraph extends AgeGroups {
     protected final Edge[] flowEdges;
-    protected final Map<Integer, List<Integer>> network;
     protected final int s;
     protected final int t;
     
     protected InitialGraph() throws IOException {
         this.flowEdges = new Edge[super.getNumOfFlowEdges()];
-
-        final double defaultLoadFactor = 0.75;
-        this.network = new HashMap<>((int)(super.getNumOfVertices() / defaultLoadFactor) + 1);
-        for (int i = 1; i <= super.getNumOfVertices(); i++)
-        {
-            this.network.put(i, new ArrayList<>(super.getNumOfVertices()));
-        }
-
         this.s = 1;
         this.t = super.getNumOfVertices();
         this.buildNetwork();
@@ -178,8 +169,8 @@ class InitialGraph extends AgeGroups {
         int vertexNum = this.s + 1;
         for (int nPeople : super.group1) {
             if (nPeople != 0) {
-                i = this.addEdge(this.s, nPeople, 0, vertexNum, this.s, i);
-                i = this.addEdge(vertexNum, 0, 0, this.s, vertexNum, i);
+                i = this.addEdge(this.s, nPeople, 0, vertexNum, i);
+                i = this.addEdge(vertexNum, 0, 0, this.s, i);
                 vertexNum++;
             }
         }
@@ -205,8 +196,8 @@ class InitialGraph extends AgeGroups {
 
                         int cap = Math.min(super.group1[j], super.group2[k]);
 
-                        i = this.addEdge(vertexNumGroup1, cap, weight, vertexNumGroup2, vertexNumGroup1, i);
-                        i = this.addEdge(vertexNumGroup2, 0, - weight, vertexNumGroup1, vertexNumGroup2, i);
+                        i = this.addEdge(vertexNumGroup1, cap, weight, vertexNumGroup2, i);
+                        i = this.addEdge(vertexNumGroup2, 0, - weight, vertexNumGroup1, i);
                         vertexNumGroup2++;
                     }
                 }
@@ -222,8 +213,8 @@ class InitialGraph extends AgeGroups {
         int vertexNum = this.s + super.getNumOfVerticesInGroup1() + 1;
         for (int nPeople : super.group2) {
             if (nPeople != 0) {
-                i = this.addEdge(vertexNum, nPeople, 0, this.t, vertexNum, i);
-                i = this.addEdge(this.t, 0, 0, vertexNum, this.t, i);
+                i = this.addEdge(vertexNum, nPeople, 0, this.t, i);
+                i = this.addEdge(this.t, 0, 0, vertexNum, i);
                 vertexNum++;
             }
         }
@@ -231,9 +222,8 @@ class InitialGraph extends AgeGroups {
         return i;
     }
 
-    private int addEdge(int source, int cap, int weight, int target, int networkInd, int i) {
+    private int addEdge(int source, int cap, int weight, int target, int i) {
         this.flowEdges[i] = new Edge(source, cap, 0, weight, target);
-        this.network.get(networkInd).add(i);
         return i + 1;
     }
 }
