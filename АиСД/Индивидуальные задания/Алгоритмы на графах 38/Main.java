@@ -306,7 +306,7 @@ class Graph extends InitialGraph {
 
     private void processFlowFordFulkerson() {
         int cMin = this.findMinC();
-        for (int i = super.t; this.pred[i - 1] != -1;) {
+        for (int i = super.t; i != this.s;) {
             int edgeInd = this.pred[i - 1];
             this.pushEdge(edgeInd, cMin);
             i = super.getSourceOfEdge(edgeInd);
@@ -317,7 +317,7 @@ class Graph extends InitialGraph {
         int edgeInd = this.pred[super.t - 1];
         int cMin = super.available(edgeInd);
 
-        for (int i = super.getSourceOfEdge(edgeInd); this.pred[i - 1] != -1;) {
+        for (int i = super.getSourceOfEdge(edgeInd); i != this.s;) {
             edgeInd = this.pred[i - 1];
             if (super.available(edgeInd) < cMin) {
                 cMin = super.available(edgeInd);
