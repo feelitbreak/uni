@@ -96,7 +96,7 @@ class AgeGroups {
 
     private void inputGroup2(StreamTokenizer st) throws IOException {
         st.nextToken();
-        while (st.ttype != StreamTokenizer.TT_EOF) {
+        while (st.ttype != StreamTokenizer.TT_EOL && st.ttype != StreamTokenizer.TT_EOF) {
             this.addToGroup2((int) st.nval);
             st.nextToken();
         }
