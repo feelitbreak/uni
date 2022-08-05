@@ -59,7 +59,7 @@ class AgeGroups {
     protected static final int SINGLE_ROOM_VERTEX = MAX_AGE - MIN_AGE + 1;
 
     protected AgeGroups() throws IOException {
-        this.group1 = new int[MAX_AGE - MIN_AGE + 1];
+        this.group1 = new int[MAX_AGE - MIN_AGE + 2];
         this.group2 = new int[MAX_AGE - MIN_AGE + 2];
 
         this.inputGroups();
