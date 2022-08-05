@@ -240,11 +240,11 @@ class InitialGraph extends AgeGroups {
 
 class Graph extends InitialGraph {
     private long result = 0;
-    private final int[] dist;
+    private final double[] dist;
     private final int[] pred;
 
     public Graph() throws IOException {
-        this.dist = new int[super.getNumOfVertices()];
+        this.dist = new double[super.getNumOfVertices()];
         this.pred = new int[super.getNumOfVertices()];
     }
 
@@ -272,7 +272,7 @@ class Graph extends InitialGraph {
 
     private boolean findShortestPathBellmanFord() {
         this.dist[super.s - 1] = 0;
-        Arrays.fill(this.dist, super.s, this.dist.length, Integer.MAX_VALUE);
+        Arrays.fill(this.dist, super.s, this.dist.length, Double.POSITIVE_INFINITY);
         Arrays.fill(this.pred, -1);
 
         for (int i = 0; i < super.getNumOfVertices() - 1; i++) {
@@ -281,7 +281,7 @@ class Graph extends InitialGraph {
             }
         }
 
-        return this.dist[super.t - 1] != Integer.MAX_VALUE;
+        return this.dist[super.t - 1] != Double.POSITIVE_INFINITY;
     }
 
     private boolean performRelaxation() {
