@@ -269,22 +269,32 @@ class Graph extends InitialGraph {
         Arrays.fill(this.pred, -1);
 
         for (int i = 0; i < super.getNumOfVertices() - 1; i++) {
-            for (int j = 0; j < super.flowEdges.length; j++) {
-                Edge edge = super.flowEdges[j];
-                if (edge.available() > 0) {
-                    int v = edge.getSource();
-                    int u = edge.getTarget();
-                    int c = edge.getWeight();
-
-                    if (this.dist[u - 1] > this.dist[v - 1] + c) {
-                        this.dist[u - 1] = this.dist[v - 1] + c;
-                        this.pred[u - 1] = j;
-                    }
-                }
+            if (!this.performRelaxation()) {
+                break;
             }
         }
 
         return this.dist[super.t - 1] != Integer.MAX_VALUE;
+    }
+
+    private boolean performRelaxation() {
+        boolean changeHappened = false;
+        for (int j = 0; j < super.flowEdges.length; j++) {
+            Edge edge = super.flowEdges[j];
+            if (edge.available() > 0) {
+                int v = edge.getSource();
+                int u = edge.getTarget();
+                int c = edge.getWeight();
+
+                if (this.dist[u - 1] > this.dist[v - 1] + c) {
+                    this.dist[u - 1] = this.dist[v - 1] + c;
+                    this.pred[u - 1] = j;
+                    changeHappened = true;
+                }
+            }
+        }
+
+        return changeHappened;
     }
 
     private void processFlowFordFulkerson() {
