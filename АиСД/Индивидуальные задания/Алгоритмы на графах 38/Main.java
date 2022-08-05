@@ -39,6 +39,10 @@ class Edge {
     public int available() {
         return this.capacity - this.flow;
     }
+
+    public boolean IsResidual() {
+        return this.capacity == 0;
+    }
 }
 
 class AgeGroups {
@@ -253,7 +257,10 @@ class Graph extends InitialGraph {
     public void countDiscontent() {
         for (int i = 0; i < super.flowEdges.length; i += 2) {
             Edge edge = super.flowEdges[i];
-            result += (long)edge.getFlow() * (long)edge.getWeight();
+
+            if (!edge.IsResidual()) {
+                result += (long) edge.getFlow() * (long) edge.getWeight();
+            }
         }
     }
 
