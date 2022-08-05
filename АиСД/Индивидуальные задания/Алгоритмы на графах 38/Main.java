@@ -61,18 +61,10 @@ class AgeGroups {
     protected AgeGroups() throws IOException {
         this.group1 = new int[MAX_AGE - MIN_AGE + 1];
         this.group2 = new int[MAX_AGE - MIN_AGE + 2];
+
         this.inputGroups();
-
-        if (this.m > this.n)
-        {
-            this.switchGroups();
-            this.switchVertices();
-        }
-
-        if (this.n != this.m) {
-            this.group2[SINGLE_ROOM_VERTEX] = Math.abs(this.n - this.m);
-            this.nVertices2++;
-        }
+        this.makeGroup1Bigger();
+        this.addSingleRoomVertex();
     }
     
     protected int getNumOfFlowEdges() {
@@ -87,15 +79,22 @@ class AgeGroups {
         return this.nVertices1;
     }
 
-    private void inputGroups()  throws IOException {
+    private void inputGroups() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
         st.eolIsSignificant(true);
+        this.inputGroup1(st);
+        this.inputGroup2(st);
+    }
+
+    private void inputGroup1(StreamTokenizer st) throws IOException {
         st.nextToken();
         while (st.ttype != StreamTokenizer.TT_EOL) {
             this.addToGroup1((int) st.nval);
             st.nextToken();
         }
+    }
 
+    private void inputGroup2(StreamTokenizer st) throws IOException {
         st.nextToken();
         while (st.ttype != StreamTokenizer.TT_EOF) {
             this.addToGroup2((int) st.nval);
@@ -122,7 +121,14 @@ class AgeGroups {
         this.m++;
         this.group2[age - MIN_AGE]++;
     }
-    
+
+    private void makeGroup1Bigger() {
+        if (this.m > this.n)
+        {
+            this.switchGroups();
+            this.switchVertices();
+        }
+    }
     private void switchGroups() {
         int[] temp = this.group1;
         this.group1 = this.group2;
@@ -133,6 +139,13 @@ class AgeGroups {
         int temp = this.nVertices1;
         this.nVertices1 = this.nVertices2;
         this.nVertices2 = temp;
+    }
+
+    private void addSingleRoomVertex() {
+        if (this.n != this.m) {
+            this.group2[SINGLE_ROOM_VERTEX] = Math.abs(this.n - this.m);
+            this.nVertices2++;
+        }
     }
 }
 
