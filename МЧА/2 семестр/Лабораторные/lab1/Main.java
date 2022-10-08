@@ -23,8 +23,13 @@ class RRS {
 
 class RungeLaw {
     private final static int STEP_DECREASE = 2;
+    private final double integralVal;
     private double hRes;
     private double qRes;
+
+    public RungeLaw(double integralVal) {
+        this.integralVal = integralVal;
+    }
 
     public void approxIntegral(double a, double b, double h0, double e) {
         double h1 = h0;
@@ -51,6 +56,8 @@ class RungeLaw {
         fmt.format("%.10f\n", this.hRes);
         fmt.format("Полученное приближённое значение интеграла:\n");
         fmt.format("%.8f\n", this.qRes);
+        fmt.format("Невязка:\n");
+        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
         System.out.println(fmt);
     }
 
@@ -60,7 +67,12 @@ class RungeLaw {
 }
 
 class MRS {
+    private final double integralVal;
     private double qRes;
+
+    public MRS(double integralVal) {
+        this.integralVal = integralVal;
+    }
 
     public void approxIntegral(double a, double b, int n) {
         double res = 0.;
@@ -77,12 +89,19 @@ class MRS {
         Formatter fmt = new Formatter();
         fmt.format("Полученное приближённое значение интеграла, формула средних прямоугольников:\n");
         fmt.format("%.8f\n", this.qRes);
+        fmt.format("Невязка:\n");
+        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
         System.out.print(fmt);
     }
 }
 
 class Simpson {
+    private final double integralVal;
     private double qRes;
+
+    public Simpson(double integralVal) {
+        this.integralVal = integralVal;
+    }
 
     public void approxIntegral(double a, double b, int n) {
         double res = 0.;
@@ -107,6 +126,8 @@ class Simpson {
         Formatter fmt = new Formatter();
         fmt.format("Полученное приближённое значение интеграла, формула Симпсона:\n");
         fmt.format("%.8f\n", this.qRes);
+        fmt.format("Невязка:\n");
+        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
         System.out.println(fmt);
     }
 }
@@ -115,7 +136,12 @@ class Gauss {
     private static final int N = 4;
     private static final double[] X = { 8.62471938, 7.15387724, 5., 2.84612276, 1.37528062 };
     private static final double[] A = { 0.94770754, 1.91451468, 2.27555556, 1.91451468, 0.94770754 };
+    private final double integralVal;
     private double qRes;
+
+    public Gauss(double integralVal) {
+        this.integralVal = integralVal;
+    }
 
     public void approxIntegral() {
         double res = 0.;
@@ -131,6 +157,8 @@ class Gauss {
         Formatter fmt = new Formatter();
         fmt.format("Полученное приближённое значение интеграла:\n");
         fmt.format("%.8f\n", this.qRes);
+        fmt.format("Невязка:\n");
+        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
         System.out.println(fmt);
     }
 }
@@ -151,23 +179,23 @@ public class Main {
 
         System.out.println("Задание 1:");
 
-        RungeLaw rl = new RungeLaw();
+        RungeLaw rl = new RungeLaw(I);
         rl.approxIntegral(A, B, H0, E);
         rl.outRes();
 
         System.out.println("Задание 2:");
 
-        MRS mrs = new MRS();
+        MRS mrs = new MRS(I);
         mrs.approxIntegral(A, B, N1);
         mrs.outRes();
 
-        Simpson s = new Simpson();
+        Simpson s = new Simpson(I);
         s.approxIntegral(A, B, N2);
         s.outRes();
 
         System.out.println("Задание 3:");
 
-        Gauss g = new Gauss();
+        Gauss g = new Gauss(I);
         g.approxIntegral();
         g.outRes();
     }
