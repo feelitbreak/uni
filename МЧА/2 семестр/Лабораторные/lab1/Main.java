@@ -53,11 +53,11 @@ class RungeLaw {
     public void outRes() {
         Formatter fmt = new Formatter();
         fmt.format("Величина шага:\n");
-        fmt.format("%.10f\n", this.hRes);
+        fmt.format("%.8f\n", this.hRes);
         fmt.format("Полученное приближённое значение интеграла:\n");
-        fmt.format("%.8f\n", this.qRes);
+        fmt.format("%.7f\n", this.qRes);
         fmt.format("Невязка:\n");
-        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
+        fmt.format("%.7f\n", Math.abs(this.qRes - this.integralVal));
         System.out.println(fmt);
     }
 
@@ -88,9 +88,9 @@ class MRS {
     public void outRes() {
         Formatter fmt = new Formatter();
         fmt.format("Полученное приближённое значение интеграла, формула средних прямоугольников:\n");
-        fmt.format("%.8f\n", this.qRes);
+        fmt.format("%.7f\n", this.qRes);
         fmt.format("Невязка:\n");
-        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
+        fmt.format("%.7f\n", Math.abs(this.qRes - this.integralVal));
         System.out.print(fmt);
     }
 }
@@ -125,17 +125,17 @@ class Simpson {
     public void outRes() {
         Formatter fmt = new Formatter();
         fmt.format("Полученное приближённое значение интеграла, формула Симпсона:\n");
-        fmt.format("%.8f\n", this.qRes);
+        fmt.format("%.7f\n", this.qRes);
         fmt.format("Невязка:\n");
-        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
+        fmt.format("%.7f\n", Math.abs(this.qRes - this.integralVal));
         System.out.println(fmt);
     }
 }
 
 class Gauss {
     private static final int N = 4;
-    private static final double[] X = { 8.62471938, 7.15387724, 5., 2.84612276, 1.37528062 };
-    private static final double[] A = { 0.94770754, 1.91451468, 2.27555556, 1.91451468, 0.94770754 };
+    private static final double[] X = { 8.624719, 7.153877, 5., 2.846123, 1.375281 };
+    private static final double[] A = { 0.947708, 1.914515, 2.275556, 1.914515, 0.947708 };
     private final double integralVal;
     private double qRes;
 
@@ -156,9 +156,9 @@ class Gauss {
     public void outRes() {
         Formatter fmt = new Formatter();
         fmt.format("Полученное приближённое значение интеграла:\n");
-        fmt.format("%.8f\n", this.qRes);
+        fmt.format("%.7f\n", this.qRes);
         fmt.format("Невязка:\n");
-        fmt.format("%.8f\n", Math.abs(this.qRes - this.integralVal));
+        fmt.format("%.7f\n", Math.abs(this.qRes - this.integralVal));
         System.out.println(fmt);
     }
 }
@@ -169,7 +169,7 @@ public class Main {
     private static final double H0 = 1.;
     private static final double E = 0.00001;
     private static final double I = 75.904672;
-    private static final int N1 = 888;
+    private static final int N1 = 870;
     private static final int N2 = 22;
 
     public static void main(String[] args) {
