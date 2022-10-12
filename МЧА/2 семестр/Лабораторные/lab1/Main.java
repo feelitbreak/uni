@@ -168,9 +168,9 @@ public class Main {
     private static final double B = 9.;
     private static final double H0 = 1.;
     private static final double E = 0.00001;
-    private static final double I = 75.904672;
+    private static final double I = 75.90467203;
     private static final int N1 = 870;
-    private static final int N2 = 22;
+    private static final int N2 = 42;
 
     public static void main(String[] args) {
         System.out.println("Точное значение интеграла:");
