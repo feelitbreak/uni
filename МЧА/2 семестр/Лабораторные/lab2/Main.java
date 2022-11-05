@@ -83,6 +83,9 @@ class IntegralApprox {
     private final double[] xk;
     private final double[] fk;
     private final double h;
+    private final double x;
+    private double fAtX;
+    private final static double CONST_FOR_X = 2.2;
 
     public IntegralApprox(double a, double b) {
         this.a = a;
@@ -91,27 +94,38 @@ class IntegralApprox {
         this.xk = new double[N + 1];
         this.fk = new double[N + 1];
 
-        this.h = (b - this.a) / N;
+        this.x = (a + b) / CONST_FOR_X;
+        this.h = (b - a) / N;
+
         this.setXk();
         this.setFk();
+        this.setFAtX();
         this.setAkRRS();
         this.setAkLRS();
     }
 
     public double[] getAkLRS() {
-        return akLRS;
+        return this.akLRS;
     }
 
     public double[] getAkRRS() {
-        return akRRS;
+        return this.akRRS;
     }
 
     public double[] getXk() {
-        return xk;
+        return this.xk;
     }
 
     public double[] getFk() {
-        return fk;
+        return this.fk;
+    }
+
+    public double getFAtX() {
+        return this.fAtX;
+    }
+
+    public double getX() {
+        return this.x;
     }
 
     private void setXk() {
@@ -141,6 +155,75 @@ class IntegralApprox {
             this.fk[i] = F.getValue(this.xk[i]);
         }
     }
+    private void setFAtX() {
+        this.fAtX = F.getValue(this.x);
+    }
+}
+
+class Interpolation {
+    private double[] c;
+    private final double[] xk;
+
+    public Interpolation(double[] xk, double[] fXk) {
+        this.xk = xk;
+        lagrangePol(xk, fXk);
+    }
+
+    public double getValue(double x) {
+        return P(x);
+    }
+
+    private void lagrangePol(double[] xk, double[] fXk) {
+        //Подсчёт коэффициентов в представлении Лагранжа
+        c = new double[xk.length];
+        for(int i = 0; i < xk.length; i++) {
+            c[i] = 1.;
+            for(int j = 0; j < xk.length; j++) {
+                if(j != i) {
+                    c[i] /= xk[i] - xk[j];
+                }
+            }
+            c[i] *= fXk[i];
+        }
+    }
+
+    private double P(double x) {
+        //Полученный многочлен
+        double res = 0.;
+        for(int i = 0; i < this.xk.length; i++) {
+            double m;
+            m = this.c[i];
+
+            for(int j = 0; j < this.xk.length; j++) {
+                if(j != i) {
+                    m *= x - this.xk[j];
+                }
+            }
+
+            res += m;
+        }
+
+        return res;
+    }
+}
+
+class ResultOutput {
+    public static void outRes(int iN, double[] ykFred, double[] ykVolt, double yAtXFred, double yAtXVolt) {
+        Formatter fmt = new Formatter();
+        fmt.format("Полученное приближённое решение yk для уравнения Фредгольма:\n");
+        for (int i = 0; i < iN + 1; i++) {
+            fmt.format("%.7f\n", ykFred[i]);
+        }
+        fmt.format("Значение в точке x*: ");
+        fmt.format("%.7f\n", yAtXFred);
+        fmt.format("Полученное приближённое решение yk для уравнения Вольтерра:\n");
+        for (int i = 0; i < iN + 1; i++) {
+            fmt.format("%.7f\n", ykVolt[i]);
+        }
+        fmt.format("Значение в точке x*: ");
+        fmt.format("%.7f\n", yAtXVolt);
+        System.out.println(fmt);
+    }
 }
 
 class MMQ {
@@ -152,12 +235,18 @@ class MMQ {
     private final double[] fk;
     private final double[] ykFred;
     private final double[] ykVolt;
+    private final double x;
+    private final double fAtX;
+    private double yAtXFred;
+    private double yAtXVolt;
 
     public MMQ(IntegralApprox ia, double lambda) {
         this.akFred = ia.getAkRRS();
         this.akVolt = ia.getAkLRS();
         this.xk = ia.getXk();
         this.fk = ia.getFk();
+        this.x = ia.getX();
+        this.fAtX = ia.getFAtX();
         this.iN = IntegralApprox.N;
 
         this.lambda = lambda;
@@ -176,7 +265,9 @@ class MMQ {
 
         double[] yk1 = Gauss.solve(systemMatrix, fkCopy);
         System.arraycopy(yk1, 0, this.ykFred, 1, yk1.length);
-        this.ykFred[0] = this.getYk0Fred();
+        this.ykFred[0] = this.calcYk0Fred();
+
+        this.yAtXFred = this.calcYAtXFred();
     }
 
     public void Volterra() {
@@ -192,19 +283,12 @@ class MMQ {
                 this.ykVolt[i] /= 1. - (this.lambda * this.akVolt[i] * K.getValue(this.xk[i], this.xk[i]));
             }
         }
+
+        this.yAtXVolt = this.calcYAtXVolt();
     }
 
     public void outRes() {
-        Formatter fmt = new Formatter();
-        fmt.format("Полученное приближённое решение yk для уравнения Фредгольма:\n");
-        for (int i = 0; i < this.iN + 1; i++) {
-            fmt.format("%.7f\n", this.ykFred[i]);
-        }
-        fmt.format("Полученное приближённое решение yk для уравнения Вольтерра:\n");
-        for (int i = 0; i < this.iN + 1; i++) {
-            fmt.format("%.7f\n", this.ykVolt[i]);
-        }
-        System.out.println(fmt);
+        ResultOutput.outRes(this.iN, this.ykFred, this.ykVolt, this.yAtXFred, this.yAtXVolt);
     }
 
     private void setSystemMatrix(double[][] matrix) {
@@ -218,15 +302,32 @@ class MMQ {
         }
     }
 
-    private double getYk0Fred() {
+    private double calcYk0Fred() {
         double res = 0;
         for (int i = 1; i < this.iN + 1; i++) {
-            res += this.akFred[i] * K.getValue(this.xk[0], xk[i]) * this.ykFred[i];
+            res += this.akFred[i] * K.getValue(this.xk[0], this.xk[i]) * this.ykFred[i];
         }
 
         res *= this.lambda;
         res += this.fk[0];
         return res;
+    }
+
+    private double calcYAtXFred() {
+        double res = 0.;
+
+        for (int i = 1; i < this.iN + 1; i++) {
+            res += this.akFred[i] * K.getValue(this.x, this.xk[i]) * this.ykFred[i];
+        }
+
+        res *= this.lambda;
+        res += this.fAtX;
+        return res;
+    }
+
+    private double calcYAtXVolt() {
+        Interpolation in = new Interpolation(this.xk, this.ykVolt);
+        return in.getValue(this.x);
     }
 }
 
@@ -240,12 +341,18 @@ class FPI {
     private final double[] fk;
     private double[] ykFred;
     private double[] ykVolt;
+    private final double x;
+    private final double fAtX;
+    private double yAtXFred;
+    private double yAtXVolt;
 
     public FPI(IntegralApprox ia, double lambda) {
         this.akFred = ia.getAkRRS();
         this.akVolt = ia.getAkLRS();
         this.xk = ia.getXk();
         this.fk = ia.getFk();
+        this.x = ia.getX();
+        this.fAtX = ia.getFAtX();
         this.iN = IntegralApprox.N;
 
         this.lambda = lambda;
@@ -262,20 +369,28 @@ class FPI {
             System.arraycopy(y2, 0, y1, 0, y2.length);
         }
 
-        ykFred = y2;
+        this.ykFred = y2;
+        this.yAtXFred = this.calcYAtXFred();
     }
 
     public void Volterra() {
+        double[] y1 = new double[this.iN + 1];
+        double[] y2 = new double[this.iN + 1];
 
+        System.arraycopy(fk, 0, y1, 0, fk.length);
+
+        for (int i = 0; i < N; i++) {
+            this.calcY2Volt(y1, y2);
+            System.arraycopy(y2, 0, y1, 0, y2.length);
+        }
+
+        this.ykVolt = y2;
+
+        this.yAtXVolt = this.calcYAtXVolt();
     }
 
     public void outRes() {
-        Formatter fmt = new Formatter();
-        fmt.format("Полученное приближённое решение yk для уравнения Фредгольма:\n");
-        for (int i = 0; i < this.iN + 1; i++) {
-            fmt.format("%.7f\n", this.ykFred[i]);
-        }
-        System.out.println(fmt);
+        ResultOutput.outRes(this.iN, this.ykFred, this.ykVolt, this.yAtXFred, this.yAtXVolt);
     }
 
     private void calcY2Fred(double[] y1, double[] y2) {
@@ -288,6 +403,35 @@ class FPI {
             y2[j] *= this.lambda;
             y2[j] += fk[j];
         }
+    }
+
+    private double calcYAtXFred() {
+        double res = 0.;
+        for (int k = 1; k < this.iN + 1; k++) {
+            res += this.akFred[k] * K.getValue(this.x, this.xk[k]) * ykFred[k];
+        }
+
+        res *= this.lambda;
+        res += this.fAtX;
+        return res;
+    }
+
+    private void calcY2Volt(double[] y1, double[] y2) {
+        y2[0] = fk[0];
+        for (int j = 1; j < this.iN + 1; j++) {
+            y2[j] = 0.;
+            for (int k = 0; k < j; k++) {
+                y2[j] += this.akVolt[k] * K.getValue(this.xk[j], this.xk[k]) * y1[k];
+            }
+
+            y2[j] *= this.lambda;
+            y2[j] += fk[j];
+        }
+    }
+
+    private double calcYAtXVolt() {
+        Interpolation in = new Interpolation(this.xk, this.ykVolt);
+        return in.getValue(this.x);
     }
 }
 
