@@ -366,11 +366,13 @@ class FPI {
 
         for (int i = 0; i < N; i++) {
             this.calcY2Fred(y1, y2);
-            System.arraycopy(y2, 0, y1, 0, y2.length);
+            if (i != N - 1) {
+                System.arraycopy(y2, 0, y1, 0, y2.length);
+            }
         }
 
         this.ykFred = y2;
-        this.yAtXFred = this.calcYAtXFred();
+        this.yAtXFred = this.calcYAtXFred(y1);
     }
 
     public void Volterra() {
@@ -405,10 +407,10 @@ class FPI {
         }
     }
 
-    private double calcYAtXFred() {
+    private double calcYAtXFred(double[] y1) {
         double res = 0.;
         for (int k = 1; k < this.iN + 1; k++) {
-            res += this.akFred[k] * K.getValue(this.x, this.xk[k]) * ykFred[k];
+            res += this.akFred[k] * K.getValue(this.x, this.xk[k]) * y1[k];
         }
 
         res *= this.lambda;
@@ -443,14 +445,14 @@ public class Main {
     public static void main(String[] args) {
         IntegralApprox ia = new IntegralApprox(A, B);
 
-        System.out.println("Задание 1:");
+        System.out.println("Задание 1. Метод механических квадратур.");
 
         MMQ mmq = new MMQ(ia, LAMBDA);
         mmq.Fredholm();
         mmq.Volterra();
         mmq.outRes();
 
-        System.out.println("Задание 2:");
+        System.out.println("Задание 2. Метод последовательных приближений.");
 
         FPI fpi = new FPI(ia, LAMBDA);
         fpi.Fredholm();
