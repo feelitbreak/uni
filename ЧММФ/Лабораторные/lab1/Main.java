@@ -8,6 +8,10 @@ class K {
     public static double getValue(double x) {
         return Math.pow(Math.cos(x), 2.) + 1.;
     }
+
+    public static double getDxValue(double x) {
+        return - Math.sin(2. * x);
+    }
 }
 
 class Q {
@@ -95,7 +99,64 @@ class BoundaryValueProblem {
     private static final double G0 = 0;
     private static final double KAP1 = 1.;
     private static final double G1 = 1.;
+    private static final double H = 0.1;
+    private int n;
+    private double[] x;
+    private double[] k;
+    private double[] kDx;
+    private double[] q;
+    private double[] f;
     private double[] y1;
+
+    public BoundaryValueProblem() {
+        n = (int) (1. / H);
+
+        x = new double[n + 1];
+        k = new double[n + 1];
+        kDx = new double[n + 1];
+        q = new double[n + 1];
+        f = new double[n + 1];
+
+        genX();
+        genK(x);
+        genKDx(x);
+        genQ();
+        genF(x);
+    }
+
+    public void solve() {
+        
+    }
+
+    private void genX() {
+        for (int i = 0; i <= n; i++) {
+            x[i] = i * H;
+        }
+    }
+
+    private void genK(double[] x) {
+        for (int i = 0; i <= n; i++) {
+            k[i] = K.getValue(x[i]);
+        }
+    }
+
+    private void genKDx(double[] x) {
+        for (int i = 0; i <= n; i++) {
+            kDx[i] = K.getDxValue(x[i]);
+        }
+    }
+
+    private void genQ() {
+        for (int i = 0; i <= n; i++) {
+            q[i] = Q.getValue();
+        }
+    }
+
+    private void genF(double[] x) {
+        for (int i = 0; i <= n; i++) {
+            f[i] = F.getValue(x[i]);
+        }
+    }
 }
 
 public class Main {
