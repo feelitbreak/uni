@@ -16,7 +16,7 @@ class Q {
     }
 }
 
-class DiffTridiagMatrixAlgorithm {
+class TridiagMatrixDiffAlgorithm {
     private final int n;
     private final double[] a;
     private final double[] c;
@@ -27,7 +27,7 @@ class DiffTridiagMatrixAlgorithm {
     private final double kap2;
     private final double nu2;
 
-    public DiffTridiagMatrixAlgorithm
+    public TridiagMatrixDiffAlgorithm
             (int n, double[] a, double[] c, double[] b, double[] f,
              double kap1, double nu1, double kap2, double nu2) {
         this.n = n;
