@@ -22,21 +22,94 @@ class Q {
     }
 }
 
+class Partition {
+    private final int n;
+    private final double h;
+    private final double[] x;
+    private final double[] k;
+    private final double[] kDx;
+    private final double[] q;
+    private final double[] f;
+
+    public Partition(int n, double h) {
+        this.n = n;
+        this.h = h;
+
+        x = new double[n + 1];
+        k = new double[n + 1];
+        kDx = new double[n + 1];
+        q = new double[n + 1];
+        f = new double[n + 1];
+
+        genX();
+        genK(x);
+        genKDx(x);
+        genQ();
+        genF(x);
+    }
+
+    public double[] getK() {
+        return k;
+    }
+
+    public double[] getKDx() {
+        return kDx;
+    }
+
+    public double[] getQ() {
+        return q;
+    }
+
+    public double[] getF() {
+        return f;
+    }
+
+    private void genX() {
+        for (int i = 0; i <= n; i++) {
+            x[i] = i * h;
+        }
+    }
+
+    private void genK(double[] x) {
+        for (int i = 0; i <= n; i++) {
+            k[i] = K.getValue(x[i]);
+        }
+    }
+
+    private void genKDx(double[] x) {
+        for (int i = 0; i <= n; i++) {
+            kDx[i] = K.getDxValue(x[i]);
+        }
+    }
+
+    private void genQ() {
+        for (int i = 0; i <= n; i++) {
+            q[i] = Q.getValue();
+        }
+    }
+
+    private void genF(double[] x) {
+        for (int i = 0; i <= n; i++) {
+            f[i] = F.getValue(x[i]);
+        }
+    }
+}
+
 record TridiagMatrixDiffAlgorithm(int n, double[] a, double[] c, double[] b, double[] f, double kap1, double nu1,
                                   double kap2, double nu2) {
 
     public double[] solve() {
         double[] alpha, beta;
-        alpha = genAlpha();
-        beta = genBeta(alpha);
+        alpha = getAlpha();
+        beta = getBeta(alpha);
 
         double[] y;
-        y = genY(alpha, beta);
+        y = getY(alpha, beta);
 
         return y;
     }
 
-    private double[] genAlpha() {
+    private double[] getAlpha() {
         double[] res = new double[n];
         res[0] = kap1;
 
@@ -47,7 +120,7 @@ record TridiagMatrixDiffAlgorithm(int n, double[] a, double[] c, double[] b, dou
         return res;
     }
 
-    private double[] genBeta(double[] alpha) {
+    private double[] getBeta(double[] alpha) {
         double[] res = new double[n];
         res[0] = nu1;
 
@@ -58,7 +131,7 @@ record TridiagMatrixDiffAlgorithm(int n, double[] a, double[] c, double[] b, dou
         return res;
     }
 
-    private double[] genY(double[] alpha, double[] beta) {
+    private double[] getY(double[] alpha, double[] beta) {
         double[] res = new double[n + 1];
         res[n] = (nu2 + kap2 * beta[n - 1]) / (1. - (alpha[n - 1] * kap2));
 
@@ -162,79 +235,82 @@ class BoundaryValueProblem {
     private static final double KAP1 = 1.;
     private static final double G1 = 1.;
     private static final double H = 0.1;
+    private static final double H_EXACT = 0.001;
     private final int n;
-    private final double[] x;
-    private final double[] k;
-    private final double[] kDx;
-    private final double[] q;
-    private final double[] f;
+    private final int nExact;
+    private final double[] u;
     private double[] y1;
+    private double[] res1;
 
     public BoundaryValueProblem() {
         n = (int) (1. / H);
+        nExact = (int) (1. / H_EXACT);
 
-        x = new double[n + 1];
-        k = new double[n + 1];
-        kDx = new double[n + 1];
-        q = new double[n + 1];
-        f = new double[n + 1];
-
-        genX();
-        genK(x);
-        genKDx(x);
-        genQ();
-        genF(x);
+        Partition exPart = new Partition(nExact, H_EXACT);
+        u = getExact(exPart);
     }
 
     public void solve() {
+        Partition p = new Partition(n, H);
+        double[] k = p.getK();
+        double[] kDx = p.getKDx();
+        double[] q = p.getQ();
+        double[] f = p.getF();
+
         DiffOperatorsMethod dom = new DiffOperatorsMethod(n, H, k, kDx, q, f, KAP0, G0, KAP1, G1);
         y1 = dom.getY();
+        res1 = getResidual(y1);
     }
 
     public void outRes() {
         Formatter fmt = new Formatter();
 
+        fmt.format("\nТочное решение:\n");
+        outY(fmt, u);
+
         fmt.format("\nЗадание 1. Аппроксимация разностными операторами.\n");
+        fmt.format("Полученное решение:\n");
         outY(fmt, y1);
+        fmt.format("Вектор невязок:\n");
+        outRes(fmt, res1);
 
         System.out.println(fmt);
     }
 
     private void outY(Formatter fmt, double[] y) {
-        fmt.format("Полученное решение:\n");
         for (int i = 0; i <= n; i++) {
             fmt.format("%.7f\n", y[i]);
         }
     }
 
-    private void genX() {
+    private void outRes(Formatter fmt, double[] res) {
         for (int i = 0; i <= n; i++) {
-            x[i] = i * H;
+            fmt.format("%E\n", res[i]);
         }
     }
 
-    private void genK(double[] x) {
+    private double[] getResidual(double[] y) {
+        double[] res = new double[n + 1];
         for (int i = 0; i <= n; i++) {
-            k[i] = K.getValue(x[i]);
+            res[i] = Math.abs(u[i] - y[i]);
         }
+
+        return res;
     }
 
-    private void genKDx(double[] x) {
-        for (int i = 0; i <= n; i++) {
-            kDx[i] = K.getDxValue(x[i]);
-        }
-    }
+    private double[] getExact(Partition p) {
+        double[] res = new double[n + 1];
+        double[] fullRes;
 
-    private void genQ() {
-        for (int i = 0; i <= n; i++) {
-            q[i] = Q.getValue();
-        }
-    }
+        DiffOperatorsMethod dom = new DiffOperatorsMethod
+                (nExact, H_EXACT, p.getK(), p.getKDx(), p.getQ(), p.getF(), KAP0, G0, KAP1, G1);
+        fullRes = dom.getY();
 
-    private void genF(double[] x) {
-        for (int i = 0; i <= n; i++) {
-            f[i] = F.getValue(x[i]);
+        for (int i = 0, j = 0; i <= nExact; i += nExact / n, j++) {
+            res[j] = fullRes[i];
         }
+
+        return res;
     }
 }
 
