@@ -100,10 +100,8 @@ class IntegralApprox {
     }
 }
 
-record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
-                           double kap1, double g1) {
-
-    public double[] getY() {
+interface Method {
+    default double[] getY(int n) {
         double[] a = getA();
         double[] c = getC();
         double[] b = getB();
@@ -124,7 +122,25 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
         return tmda.solve();
     }
 
-    private double[] getA() {
+    double[] getA();
+    double[] getC();
+    double[] getB();
+    double[] getF();
+    double getWavyKap0();
+    double getWavyG0();
+    double getNewKap1(double wavyKap0);
+    double getNu1(double wavyKap0, double wavyG0);
+    double getWavyKap1();
+    double getWavyG1();
+    double getNewKap2(double wavyKap1);
+    double getNu2(double wavyKap1, double wavyG1);
+}
+
+record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
+                           double kap1, double g1) implements Method {
+
+    @Override
+    public double[] getA() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -134,7 +150,8 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double[] getC() {
+    @Override
+    public double[] getC() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -144,7 +161,8 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double[] getB() {
+    @Override
+    public double[] getB() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -154,7 +172,8 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double[] getF() {
+    @Override
+    public double[] getF() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -164,64 +183,52 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double getNewKap1(double wavyKap0) {
+    @Override
+    public double getNewKap1(double wavyKap0) {
         return K.getValue(x[0]) / ((h * wavyKap0) +  K.getValue(x[0]));
     }
 
-    private double getNu1(double wavyKap0, double wavyG0) {
+    @Override
+    public double getNu1(double wavyKap0, double wavyG0) {
         return (h * wavyG0) / ((h * wavyKap0) +  K.getValue(x[0]));
     }
 
-    private double getWavyKap0() {
+    @Override
+    public double getWavyKap0() {
         return (kap0 * (1 - (h / 2.) * ( K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  Q.getValue(x[0]));
     }
 
-    private double getWavyG0() {
+    @Override
+    public double getWavyG0() {
         return (g0 * (1 - (h / 2.) * ( K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  F.getValue(x[0]));
     }
 
-    private double getNewKap2(double wavyKap1) {
+    @Override
+    public double getNewKap2(double wavyKap1) {
         return  K.getValue(x[n]) / ((h * wavyKap1) + K.getValue(x[n]));
     }
 
-    private double getNu2(double wavyKap1, double wavyG1) {
+    @Override
+    public double getNu2(double wavyKap1, double wavyG1) {
         return (h * wavyG1) / ((h * wavyKap1) + K.getValue(x[n]));
     }
 
-    private double getWavyKap1() {
+    @Override
+    public double getWavyKap1() {
         return (kap1 * (1 + (h / 2.) * (K.getDxValue(x[n]) / K.getValue(x[n])))) + ((h / 2.) * Q.getValue(x[n]));
     }
 
-    private double getWavyG1() {
+    @Override
+    public double getWavyG1() {
         return (g1 * (1 + (h / 2.) * (K.getDxValue(x[n]) / K.getValue(x[n])))) + ((h / 2.) * F.getValue(x[n]));
     }
 }
 
 record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
-                            double kap1, double g1) {
+                            double kap1, double g1) implements Method {
 
-    public double[] getY() {
-        double[] a = getA();
-        double[] c = getC();
-        double[] b = getB();
-        double[] f = getF();
-
-        double wavyKap0 = getWavyKap0();
-        double wavyG0 = getWavyG0();
-        double newKap1 = getNewKap1(wavyKap0);
-        double nu1 = getNu1(wavyKap0, wavyG0);
-
-        double wavyKap1 = getWavyKap1();
-        double wavyG1 = getWavyG1();
-        double newKap2 = getNewKap2(wavyKap1);
-        double nu2 = getNu2(wavyKap1, wavyG1);
-
-        TridiagMatrixDiffAlgorithm tmda = new TridiagMatrixDiffAlgorithm(n, a, c, b, f, newKap1, nu1, newKap2, nu2);
-
-        return tmda.solve();
-    }
-
-    private double[] getA() {
+    @Override
+    public double[] getA() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -231,7 +238,8 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double[] getC() {
+    @Override
+    public double[] getC() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -242,7 +250,8 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double[] getB() {
+    @Override
+    public double[] getB() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -252,7 +261,8 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double[] getF() {
+    @Override
+    public double[] getF() {
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
@@ -284,35 +294,43 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return IntegralApprox.TrapezoidalRule(a, b, fA, fB) / h;
     }
 
-    private double getNewKap1(double wavyKap0) {
+    @Override
+    public double getNewKap1(double wavyKap0) {
         return getAI(1) / ((h * wavyKap0) +  getAI(1));
     }
 
-    private double getNu1(double wavyKap0, double wavyG0) {
+    @Override
+    public double getNu1(double wavyKap0, double wavyG0) {
         return (h * wavyG0) / ((h * wavyKap0) +  getAI(1));
     }
 
-    private double getWavyKap0() {
+    @Override
+    public double getWavyKap0() {
         return kap0 + ((h / 2.) * getD0());
     }
 
-    private double getWavyG0() {
+    @Override
+    public double getWavyG0() {
         return g0 + ((h / 2.) * getPhi0());
     }
 
-    private double getNewKap2(double wavyKap1) {
+    @Override
+    public double getNewKap2(double wavyKap1) {
         return getAI(n) / ((h * wavyKap1) +  getAI(n));
     }
 
-    private double getNu2(double wavyKap1, double wavyG1) {
+    @Override
+    public double getNu2(double wavyKap1, double wavyG1) {
         return (h * wavyG1) / ((h * wavyKap1) +  getAI(n));
     }
 
-    private double getWavyKap1() {
+    @Override
+    public double getWavyKap1() {
         return kap1 + ((h / 2.) * getDN());
     }
 
-    private double getWavyG1() {
+    @Override
+    public double getWavyG1() {
         return g1 + ((h / 2.) * getPhiN());
     }
 
@@ -373,11 +391,11 @@ class BoundaryValueProblem {
         double[] x = p.getX();
 
         DiffOperatorsMethod dom = new DiffOperatorsMethod(n, H, x, KAP0, G0, KAP1, G1);
-        y1 = dom.getY();
+        y1 = dom.getY(n);
         res1 = getResidual(y1);
 
         BalanceMethod bm = new BalanceMethod(n, H, x, KAP0, G0, KAP1, G1);
-        y2 = bm.getY();
+        y2 = bm.getY(n);
         res2 = getResidual(y2);
     }
 
@@ -429,7 +447,7 @@ class BoundaryValueProblem {
 
         DiffOperatorsMethod dom = new DiffOperatorsMethod
                 (nExact, H_EXACT, p.getX(), KAP0, G0, KAP1, G1);
-        fullRes = dom.getY();
+        fullRes = dom.getY(n);
 
         for (int i = 0, j = 0; i <= nExact; i += nExact / n, j++) {
             res[j] = fullRes[i];
