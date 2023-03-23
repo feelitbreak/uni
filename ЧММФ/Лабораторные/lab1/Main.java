@@ -225,7 +225,7 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
-            res[i] = getAi(i + 1) / (h * h);
+            res[i] = getAI(i + 1) / (h * h);
         }
 
         return res;
@@ -235,7 +235,8 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
-            res[i] = ((2. * K.getValue(x[i + 1])) / Math.pow(h, 2.)) + Q.getValue(x[i + 1]);
+            res[i] = (getAI(i + 2) + getAI(i + 1)) / (h * h);
+            res[i] += getDI(i + 1);
         }
 
         return res;
@@ -245,7 +246,7 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
-            res[i] = ((K.getValue(x[i + 1]) / h) + (K.getDxValue(x[i + 1]) / 2.)) / h;
+            res[i] = getAI(i + 2) / (h * h);
         }
 
         return res;
@@ -255,48 +256,92 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
-            res[i] = F.getValue(x[i + 1]);
+            res[i] = getPhiI(i + 1);
         }
 
         return res;
     }
 
-    private double getAi(int i) {
+    private double getAI(int i) {
         double kA = 1 / K.getValue(x[i - 1]);
         double kB = 1 / K.getValue(x[i]);
         return h / IntegralApprox.TrapezoidalRule(x[i - 1], x[i], kA, kB);
     }
 
+    private double getDI(int i) {
+        double a = x[i] - (h / 2.);
+        double b = x[i] + (h / 2.);
+        double qA = Q.getValue(a);
+        double qB = Q.getValue(b);
+        return IntegralApprox.TrapezoidalRule(a, b, qA, qB) / h;
+    }
+
+    private double getPhiI(int i) {
+        double a = x[i] - (h / 2.);
+        double b = x[i] + (h / 2.);
+        double fA = F.getValue(a);
+        double fB = F.getValue(b);
+        return IntegralApprox.TrapezoidalRule(a, b, fA, fB) / h;
+    }
+
     private double getNewKap1(double wavyKap0) {
-        return K.getValue(x[0]) / ((h * wavyKap0) +  K.getValue(x[0]));
+        return getAI(1) / ((h * wavyKap0) +  getAI(1));
     }
 
     private double getNu1(double wavyKap0, double wavyG0) {
-        return (h * wavyG0) / ((h * wavyKap0) +  K.getValue(x[0]));
+        return (h * wavyG0) / ((h * wavyKap0) +  getAI(1));
     }
 
     private double getWavyKap0() {
-        return (kap0 * (1 - (h / 2.) * ( K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  Q.getValue(x[0]));
+        return kap0 + ((h / 2.) * getD0());
     }
 
     private double getWavyG0() {
-        return (g0 * (1 - (h / 2.) * ( K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  F.getValue(x[0]));
+        return g0 + ((h / 2.) * getPhi0());
     }
 
     private double getNewKap2(double wavyKap1) {
-        return  K.getValue(x[n]) / ((h * wavyKap1) + K.getValue(x[n]));
+        return getAI(n) / ((h * wavyKap1) +  getAI(n));
     }
 
     private double getNu2(double wavyKap1, double wavyG1) {
-        return (h * wavyG1) / ((h * wavyKap1) + K.getValue(x[n]));
+        return (h * wavyG1) / ((h * wavyKap1) +  getAI(n));
     }
 
     private double getWavyKap1() {
-        return (kap1 * (1 + (h / 2.) * (K.getDxValue(x[n]) / K.getValue(x[n])))) + ((h / 2.) * Q.getValue(x[n]));
+        return kap1 + ((h / 2.) * getDN());
     }
 
     private double getWavyG1() {
-        return (g1 * (1 + (h / 2.) * (K.getDxValue(x[n]) / K.getValue(x[n])))) + ((h / 2.) * F.getValue(x[n]));
+        return g1 + ((h / 2.) * getPhiN());
+    }
+
+    private double getD0() {
+        double qA = Q.getValue(0);
+        double qB = Q.getValue(h / 2.);
+        return (2 * IntegralApprox.TrapezoidalRule(0, h / 2., qA, qB)) / h;
+    }
+
+    private double getPhi0() {
+        double fA = F.getValue(0);
+        double fB = F.getValue(h / 2.);
+        return (2 * IntegralApprox.TrapezoidalRule(0, h / 2., fA, fB)) / h;
+    }
+
+    private double getDN() {
+        double a = 1 - (h / 2.);
+        double b = 1.;
+        double qA = Q.getValue(a);
+        double qB = Q.getValue(b);
+        return (2 * IntegralApprox.TrapezoidalRule(a, b, qA, qB)) / h;
+    }
+
+    private double getPhiN() {
+        double a = 1 - (h / 2.);
+        double b = 1.;
+        double fA = F.getValue(a);
+        double fB = F.getValue(b);
+        return (2 * IntegralApprox.TrapezoidalRule(a, b, fA, fB)) / h;
     }
 }
 
@@ -312,6 +357,8 @@ class BoundaryValueProblem {
     private final double[] u;
     private double[] y1;
     private double[] res1;
+    private double[] y2;
+    private double[] res2;
 
     public BoundaryValueProblem() {
         n = (int) (1. / H);
@@ -328,6 +375,10 @@ class BoundaryValueProblem {
         DiffOperatorsMethod dom = new DiffOperatorsMethod(n, H, x, KAP0, G0, KAP1, G1);
         y1 = dom.getY();
         res1 = getResidual(y1);
+
+        BalanceMethod bm = new BalanceMethod(n, H, x, KAP0, G0, KAP1, G1);
+        y2 = bm.getY();
+        res2 = getResidual(y2);
     }
 
     public void outRes() {
@@ -341,6 +392,12 @@ class BoundaryValueProblem {
         outY(fmt, y1);
         fmt.format("Вектор невязок:\n");
         outRes(fmt, res1);
+
+        fmt.format("\nЗадание 2. Метод баланса.\n");
+        fmt.format("Полученное решение:\n");
+        outY(fmt, y2);
+        fmt.format("Вектор невязок:\n");
+        outRes(fmt, res2);
 
         System.out.println(fmt);
     }
