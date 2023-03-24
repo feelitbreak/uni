@@ -224,8 +224,24 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
     }
 }
 
-record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
-                            double kap1, double g1) implements Method {
+abstract class BalanceAndRitzMethod implements Method {
+    protected final int n;
+    protected final double h;
+    protected final double[] x;
+    protected final double kap0;
+    protected final double g0;
+    protected final double kap1;
+    protected final double g1;
+
+    public BalanceAndRitzMethod(int n, double h, double[] x, double kap0, double g0, double kap1, double g1) {
+        this.n = n;
+        this.h = h;
+        this.x = x;
+        this.kap0 = kap0;
+        this.g0 = g0;
+        this.kap1 = kap1;
+        this.g1 = g1;
+    }
 
     @Override
     public double[] getA() {
@@ -272,28 +288,6 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return res;
     }
 
-    private double getAI(int i) {
-        double kA = 1 / K.getValue(x[i - 1]);
-        double kB = 1 / K.getValue(x[i]);
-        return h / IntegralApprox.TrapezoidalRule(x[i - 1], x[i], kA, kB);
-    }
-
-    private double getDI(int i) {
-        double a = x[i] - (h / 2.);
-        double b = x[i] + (h / 2.);
-        double qA = Q.getValue(a);
-        double qB = Q.getValue(b);
-        return IntegralApprox.TrapezoidalRule(a, b, qA, qB) / h;
-    }
-
-    private double getPhiI(int i) {
-        double a = x[i] - (h / 2.);
-        double b = x[i] + (h / 2.);
-        double fA = F.getValue(a);
-        double fB = F.getValue(b);
-        return IntegralApprox.TrapezoidalRule(a, b, fA, fB) / h;
-    }
-
     @Override
     public double getNewKap1(double wavyKap0) {
         return getAI(1) / ((h * wavyKap0) +  getAI(1));
@@ -334,19 +328,62 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return g1 + ((h / 2.) * getPhiN());
     }
 
-    private double getD0() {
+    protected abstract double getAI(int i);
+    protected abstract double getDI(int i);
+    protected abstract double getPhiI(int i);
+    protected abstract double getD0();
+    protected abstract double getPhi0();
+    protected abstract double getDN();
+    protected abstract double getPhiN();
+}
+
+class BalanceMethod extends BalanceAndRitzMethod {
+
+    public BalanceMethod(int n, double h, double[] x, double kap0, double g0, double kap1, double g1) {
+        super(n, h, x, kap0, g0, kap1, g1);
+    }
+
+    @Override
+    protected double getAI(int i) {
+        double kA = 1 / K.getValue(x[i - 1]);
+        double kB = 1 / K.getValue(x[i]);
+        return h / IntegralApprox.TrapezoidalRule(x[i - 1], x[i], kA, kB);
+    }
+
+    @Override
+    protected double getDI(int i) {
+        double a = x[i] - (h / 2.);
+        double b = x[i] + (h / 2.);
+        double qA = Q.getValue(a);
+        double qB = Q.getValue(b);
+        return IntegralApprox.TrapezoidalRule(a, b, qA, qB) / h;
+    }
+
+    @Override
+    protected double getPhiI(int i) {
+        double a = x[i] - (h / 2.);
+        double b = x[i] + (h / 2.);
+        double fA = F.getValue(a);
+        double fB = F.getValue(b);
+        return IntegralApprox.TrapezoidalRule(a, b, fA, fB) / h;
+    }
+
+    @Override
+    protected double getD0() {
         double qA = Q.getValue(0);
         double qB = Q.getValue(h / 2.);
         return (2 * IntegralApprox.TrapezoidalRule(0, h / 2., qA, qB)) / h;
     }
 
-    private double getPhi0() {
+    @Override
+    protected double getPhi0() {
         double fA = F.getValue(0);
         double fB = F.getValue(h / 2.);
         return (2 * IntegralApprox.TrapezoidalRule(0, h / 2., fA, fB)) / h;
     }
 
-    private double getDN() {
+    @Override
+    protected double getDN() {
         double a = 1 - (h / 2.);
         double b = 1.;
         double qA = Q.getValue(a);
@@ -354,7 +391,8 @@ record BalanceMethod (int n, double h, double[] x, double kap0, double g0,
         return (2 * IntegralApprox.TrapezoidalRule(a, b, qA, qB)) / h;
     }
 
-    private double getPhiN() {
+    @Override
+    protected double getPhiN() {
         double a = 1 - (h / 2.);
         double b = 1.;
         double fA = F.getValue(a);
@@ -447,7 +485,7 @@ class BoundaryValueProblem {
 
         DiffOperatorsMethod dom = new DiffOperatorsMethod
                 (nExact, H_EXACT, p.getX(), KAP0, G0, KAP1, G1);
-        fullRes = dom.getY(n);
+        fullRes = dom.getY(nExact);
 
         for (int i = 0, j = 0; i <= nExact; i += nExact / n, j++) {
             res[j] = fullRes[i];
