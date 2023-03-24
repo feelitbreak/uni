@@ -17,6 +17,10 @@ class K {
 }
 
 class Q {
+    //Parameter 'x' is used in case the function Q needs to be changed.
+    //In this case Q is not parameter dependent, it is a constant function.
+    //Nevertheless, it can be dependent on 'x', in general.
+    @SuppressWarnings("unused")
     public static double getValue(double x) {
         return 1.;
     }
@@ -558,7 +562,7 @@ class BoundaryValueProblem {
     public void outRes() {
         Formatter fmt = new Formatter();
 
-        fmt.format("\nТочное решение:\n");
+        fmt.format("\n\"Точное\" решение (аппроксимация РО при N = 1000):\n");
         outY(fmt, u);
 
         fmt.format("\nЗадание 1. Аппроксимация разностными операторами.\n");
