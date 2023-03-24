@@ -163,7 +163,7 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
         double[] res = new double[n - 1];
 
         for (int i = 0; i < n - 1; i++) {
-            res[i] = ((2. * K.getValue(x[i + 1])) / Math.pow(h, 2.)) + Q.getValue(x[i + 1]);
+            res[i] = ((2. * K.getValue(x[i + 1])) / (h * h)) + Q.getValue(x[i + 1]);
         }
 
         return res;
@@ -203,12 +203,12 @@ record DiffOperatorsMethod (int n, double h, double[] x, double kap0, double g0,
 
     @Override
     public double getWavyKap0() {
-        return (kap0 * (1 - (h / 2.) * ( K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  Q.getValue(x[0]));
+        return (kap0 * (1 - (h / 2.) * (K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  Q.getValue(x[0]));
     }
 
     @Override
     public double getWavyG0() {
-        return (g0 * (1 - (h / 2.) * ( K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  F.getValue(x[0]));
+        return (g0 * (1 - (h / 2.) * (K.getDxValue(x[0]) /  K.getValue(x[0])))) + ((h / 2.) *  F.getValue(x[0]));
     }
 
     @Override
@@ -447,7 +447,7 @@ class RitzMethod extends BalanceAndRitzMethod {
         fValue2 = Q.getValue(midpoint2) * (x[i + 1] - midpoint2);
         iValue2 = IntegralApprox.MidpointRule(x[i], x[i + 1], fValue2);
 
-        return (iValue1 - iValue2) / (h * h);
+        return (iValue1 + iValue2) / (h * h);
     }
 
     @Override
@@ -465,7 +465,7 @@ class RitzMethod extends BalanceAndRitzMethod {
         fValue2 = F.getValue(midpoint2) * (x[i + 1] - midpoint2);
         iValue2 = IntegralApprox.MidpointRule(x[i], x[i + 1], fValue2);
 
-        return (iValue1 - iValue2) / (h * h);
+        return (iValue1 + iValue2) / (h * h);
     }
 
     @Override
