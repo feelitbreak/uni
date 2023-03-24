@@ -98,6 +98,10 @@ class IntegralApprox {
     public static double TrapezoidalRule (double a, double b, double fA, double fB) {
         return (b - a) * ((fA + fB) / 2.);
     }
+
+    public static double MidpointRule (double a, double b, double fAb2) {
+        return (b - a) * fAb2;
+    }
 }
 
 interface Method {
@@ -401,6 +405,114 @@ class BalanceMethod extends BalanceAndRitzMethod {
     }
 }
 
+class RitzMethod extends BalanceAndRitzMethod {
+
+    public RitzMethod(int n, double h, double[] x, double kap0, double g0, double kap1, double g1) {
+        super(n, h, x, kap0, g0, kap1, g1);
+    }
+
+    @Override
+    protected double getAI(int i) {
+        double midpoint;
+        double fValue1, fValue2;
+        double iValue1, iValue2;
+
+        midpoint = (x[i - 1] + x[i]) / 2.;
+
+        fValue1 = K.getValue(midpoint);
+        iValue1 = IntegralApprox.MidpointRule(x[i - 1], x[i], fValue1);
+
+        fValue2 = Q.getValue(midpoint) * (midpoint - x[i - 1]) * (x[i] - midpoint);
+        iValue2 = IntegralApprox.MidpointRule(x[i - 1], x[i], fValue2);
+
+        return (iValue1 - iValue2) / h;
+    }
+
+    @Override
+    protected double getDI(int i) {
+        double midpoint1, midpoint2;
+        double fValue1, fValue2;
+        double iValue1, iValue2;
+
+        midpoint1 = (x[i - 1] + x[i]) / 2.;
+        midpoint2 = (x[i] + x[i + 1]) / 2.;
+
+        fValue1 = Q.getValue(midpoint1) * (midpoint1 - x[i - 1]);
+        iValue1 = IntegralApprox.MidpointRule(x[i - 1], x[i], fValue1);
+
+        fValue2 = Q.getValue(midpoint2) * (x[i + 1] - midpoint2);
+        iValue2 = IntegralApprox.MidpointRule(x[i], x[i + 1], fValue2);
+
+        return (iValue1 - iValue2) / (h * h);
+    }
+
+    @Override
+    protected double getPhiI(int i) {
+        double midpoint1, midpoint2;
+        double fValue1, fValue2;
+        double iValue1, iValue2;
+
+        midpoint1 = (x[i - 1] + x[i]) / 2.;
+        midpoint2 = (x[i] + x[i + 1]) / 2.;
+
+        fValue1 = F.getValue(midpoint1) * (midpoint1 - x[i - 1]);
+        iValue1 = IntegralApprox.MidpointRule(x[i - 1], x[i], fValue1);
+
+        fValue2 = F.getValue(midpoint2) * (x[i + 1] - midpoint2);
+        iValue2 = IntegralApprox.MidpointRule(x[i], x[i + 1], fValue2);
+
+        return (iValue1 - iValue2) / (h * h);
+    }
+
+    @Override
+    protected double getD0() {
+        double midpoint;
+        double fValue, iValue;
+
+        midpoint = h / 2.;
+        fValue = Q.getValue(midpoint) * (h - midpoint);
+        iValue = IntegralApprox.MidpointRule(0, h, fValue);
+
+        return (2. * iValue) / (h * h);
+    }
+
+    @Override
+    protected double getPhi0() {
+        double midpoint;
+        double fValue, iValue;
+
+        midpoint = h / 2.;
+        fValue = F.getValue(midpoint) * (h - midpoint);
+        iValue = IntegralApprox.MidpointRule(0, h, fValue);
+
+        return (2. * iValue) / (h * h);
+    }
+
+    @Override
+    protected double getDN() {
+        double midpoint;
+        double fValue, iValue;
+
+        midpoint = (1. - h + 1.) / 2.;
+        fValue = Q.getValue(midpoint) * (midpoint - 1. + h);
+        iValue = IntegralApprox.MidpointRule(1. - h, h, fValue);
+
+        return (2. * iValue) / (h * h);
+    }
+
+    @Override
+    protected double getPhiN() {
+        double midpoint;
+        double fValue, iValue;
+
+        midpoint = (1. - h + 1.) / 2.;
+        fValue = F.getValue(midpoint) * (midpoint - 1. + h);
+        iValue = IntegralApprox.MidpointRule(1. - h, h, fValue);
+
+        return (2. * iValue) / (h * h);
+    }
+}
+
 class BoundaryValueProblem {
     private static final double KAP0 = 1.;
     private static final double G0 = 0;
@@ -415,6 +527,8 @@ class BoundaryValueProblem {
     private double[] res1;
     private double[] y2;
     private double[] res2;
+    private double[] y3;
+    private double[] res3;
 
     public BoundaryValueProblem() {
         n = (int) (1. / H);
@@ -435,6 +549,10 @@ class BoundaryValueProblem {
         BalanceMethod bm = new BalanceMethod(n, H, x, KAP0, G0, KAP1, G1);
         y2 = bm.getY(n);
         res2 = getResidual(y2);
+
+        RitzMethod rm = new RitzMethod(n, H, x, KAP0, G0, KAP1, G1);
+        y3 = rm.getY(n);
+        res3 = getResidual(y3);
     }
 
     public void outRes() {
@@ -454,6 +572,12 @@ class BoundaryValueProblem {
         outY(fmt, y2);
         fmt.format("Вектор невязок:\n");
         outRes(fmt, res2);
+
+        fmt.format("\nЗадание 3. Метод Ритца.\n");
+        fmt.format("Полученное решение:\n");
+        outY(fmt, y3);
+        fmt.format("Вектор невязок:\n");
+        outRes(fmt, res3);
 
         System.out.println(fmt);
     }
