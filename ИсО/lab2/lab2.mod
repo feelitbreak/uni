@@ -15,8 +15,8 @@ param corvette, integer, > 0, <= n;
 var x {cars}, binary;
 
 maximize guests_overall: sum{i in cars} guests[i] * x[i];
-minimize min_total_cost: sum{i in cars} c[i] * x[i];
 maximize max_total_cost: sum{i in cars} c[i] * x[i];
+minimize min_total_cost: sum{i in cars} c[i] * x[i];
 
 subject to cost: (sum{i in cars} c[i] * x[i]) <= cost_max;
 subject to min_cars: (sum{i in cars} x[i]) >= car_min;

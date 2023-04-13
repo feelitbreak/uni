@@ -9,14 +9,14 @@ display guests_overall;
 display x;
 display min_total_cost;
 
-objective min_total_cost;
-solve;
-display min_total_cost;
-display x;
-display guests_overall;
-
 objective max_total_cost;
 solve;
 display max_total_cost;
+display x;
+display guests_overall;
+
+objective min_total_cost;
+solve;
+display min_total_cost;
 display x;
 display guests_overall;
