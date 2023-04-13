@@ -9,7 +9,7 @@ param guests :=
 6 33
 ;
 
-param max_cost := 15;
+param cost_max := 15;
 
 param c :=
 1 6
