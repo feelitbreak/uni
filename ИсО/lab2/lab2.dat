@@ -22,7 +22,7 @@ param c :=
 
 param car_min := 3;
 
-param buggati := 1;
+param bugatti := 1;
 param cadillac := 2;
 param cobra := 3;
 param corvette := 4;
