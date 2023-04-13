@@ -1,0 +1,28 @@
+param n := 6;
+
+param guests :=
+1 58
+2 37
+3 42
+4 40
+5 55
+6 33
+;
+
+param max_cost := 15;
+
+param c :=
+1 6
+2 4
+3 3.8
+4 4.2
+5 5.5
+6 3.2
+;
+
+param car_min := 3;
+
+param buggati := 1;
+param cadillac := 2;
+param cobra := 3;
+param corvette := 4;
