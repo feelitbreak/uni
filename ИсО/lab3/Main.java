@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StreamTokenizer;
+import java.io.*;
 import java.util.*;
 
 class Hungarian {
@@ -224,7 +221,7 @@ class Hungarian {
         ArrayList<int[]> starLocations = new ArrayList<>(numRows + numCols);
         primeLocations.add(location);
 
-        int currentRow = location[0];
+        int currentRow;
         int currentCol = location[1];
         while (true) { // add stars and primes in pairs
             int starRow = findStarRowInCol(currentCol);
@@ -369,6 +366,7 @@ class AssignmentProblem {
     private final int n;
     private final int[][] c;
     private int productivity;
+    private int[] lexOrder;
 
     public AssignmentProblem() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
@@ -389,7 +387,53 @@ class AssignmentProblem {
         Hungarian h = new Hungarian(minToMax(c));
         int[][] res = h.execute();
         productivity = getProductivity(res);
-        
+        lexOrder = getOrder(res);
+        lexicographicalOrder(lexOrder);
+    }
+
+    public void out() throws IOException {
+        PrintWriter pw = new PrintWriter("output.txt");
+
+        pw.print(productivity);
+        pw.print('\n');
+
+        pw.print(lexOrder[0]);
+        for(int i = 1; i < n; i++) {
+            pw.print(' ');
+            pw.print(lexOrder[i]);
+        }
+
+        pw.close();
+    }
+
+    private int[] getOrder(int[][] hungaryRes) {
+        int[] res = new int[n];
+
+        Arrays.sort(hungaryRes, (o1, o2) -> {
+            int i1 = o1[0];
+            int i2 = o2[0];
+            return i1 - i2;
+        });
+
+        for (int i = 0; i < n; i++) {
+            res[i] = hungaryRes[i][1] + 1;
+        }
+
+        return res;
+    }
+
+    private void lexicographicalOrder(int[] order) {
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                if (c[i][order[i] - 1] == c[j][order[i] - 1] &&
+                        c[i][order[j] - 1] == c[j][order[j] - 1] &&
+                        order[i] > order[j]) {
+                    int temp = order[i];
+                    order[i] = order[j];
+                    order[j] = temp;
+                }
+            }
+        }
     }
 
     private int getProductivity(int[][] hungaryRes) {
@@ -404,12 +448,24 @@ class AssignmentProblem {
 
     private int[][] minToMax(int[][] x) {
         int maxX = getMaxInMatrix(x);
-        int[][] res = x.clone();
+        int[][] res = copyMatrix(x);
 
         for (int i = 0; i < x.length; i++) {
             for (int j = 0; j < x[i].length; j++) {
                 res[i][j] = maxX - res[i][j];
             }
+        }
+
+        return res;
+    }
+
+    private int[][] copyMatrix(int[][] matrix) {
+        int[][] res = new int[matrix.length][];
+
+        for(int i = 0; i < matrix.length; i++) {
+            int[] row = matrix[i];
+            res[i] = new int[row.length];
+            System.arraycopy(row, 0, res[i], 0, row.length);
         }
 
         return res;
@@ -434,5 +490,6 @@ public class Main {
     public static void main(String[] args) throws IOException {
         AssignmentProblem ap = new AssignmentProblem();
         ap.solve();
+        ap.out();
     }
 }
