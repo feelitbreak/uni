@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StreamTokenizer;
+import java.io.*;
 import java.util.*;
 
 class Hungarian {
@@ -369,6 +366,7 @@ class AssignmentProblem {
     private final int n;
     private final int[][] c;
     private int productivity;
+    private int[] order;
 
     public AssignmentProblem() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
@@ -389,7 +387,23 @@ class AssignmentProblem {
         Hungarian h = new Hungarian(minToMax(c));
         int[][] res = h.execute();
         productivity = getProductivity(res);
-        
+        order = getOrder(res);
+    }
+
+    private int[] getOrder(int[][] hungaryRes) {
+        int[] res = new int[n];
+
+        Arrays.sort(hungaryRes, (o1, o2) -> {
+            int i1 = o1[0];
+            int i2 = o2[0];
+            return i1 - i2;
+        });
+
+        for (int i = 0; i < n; i++) {
+            res[i] = hungaryRes[i][1] + 1;
+        }
+
+        return res;
     }
 
     private int getProductivity(int[][] hungaryRes) {
