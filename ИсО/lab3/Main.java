@@ -437,10 +437,12 @@ class AssignmentProblem {
     }
 
     private int getProductivity(int[][] hungaryRes) {
-        int res = 0;
+        int res = Integer.MAX_VALUE;
 
         for (int[] pos : hungaryRes) {
-            res += c[pos[0]][pos[1]];
+            if (c[pos[0]][pos[1]] < res) {
+                res = c[pos[0]][pos[1]];
+            }
         }
 
         return res;
