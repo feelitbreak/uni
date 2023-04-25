@@ -90,6 +90,14 @@ class Knapsack {
             fmt.format("\n");
         }
 
+        fmt.format("Оптимальное решение:\n");
+        fmt.format("OPT = f%d(%d) = %d.\n", n, W, f[n][W]);
+
+        for (int i = 0; i < n - 1; i++) {
+            fmt.format("x%d = %d, ", i + 1, x[i]);
+        }
+        fmt.format("x%d = %d.", n, x[n - 1]);
+
         System.out.println(fmt);
     }
 }
