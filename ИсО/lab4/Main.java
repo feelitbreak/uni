@@ -7,6 +7,7 @@ class Knapsack {
     private final int[] w;
     private final int[][] p;
     private final int[][] f;
+    private final int[] x;
 
     public Knapsack() throws IOException {
         StreamTokenizer st = new StreamTokenizer(new BufferedReader(new FileReader("input.txt")));
@@ -30,6 +31,7 @@ class Knapsack {
 
         p = new int[n + 1][W + 1];
         f = new int[n + 1][W + 1];
+        x = new int[n];
     }
 
     public void solve() {
@@ -51,11 +53,27 @@ class Knapsack {
             }
         }
     }
+
+    public void backSubstitution() {
+        int j = W;
+        
+        for (int i = n; i > 0 && j > 0; i--) {
+            while (j > 0) {
+                if (p[i][j] > 0) {
+                    x[i - 1] += p[i][j];
+                    j -= w[i - 1];
+                } else {
+                    break;
+                }
+            }
+        }
+    }
 }
 
 public class Main {
     public static void main(String[] args) throws IOException {
         Knapsack k = new Knapsack();
         k.solve();
+        k.backSubstitution();
     }
 }
