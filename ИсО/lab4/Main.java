@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 class Knapsack {
     private final int n;
@@ -56,7 +57,7 @@ class Knapsack {
 
     public void backSubstitution() {
         int j = W;
-        
+
         for (int i = n; i > 0 && j > 0; i--) {
             while (j > 0) {
                 if (p[i][j] > 0) {
@@ -68,6 +69,29 @@ class Knapsack {
             }
         }
     }
+
+    public void out() {
+        Formatter fmt = new Formatter();
+        fmt.format("Решение:\n");
+
+        fmt.format("%2s ", "w");
+        for (int i = 1; i <= n; i++) {
+            fmt.format("f%d p%d ", i, i);
+        }
+
+        fmt.format("\n");
+        for (int j = 0; j <= W; j++) {
+            fmt.format("%2d ", j);
+
+            for (int i = 1; i <= n; i++) {
+                fmt.format("%2d %2d ", f[i][j], p[i][j]);
+            }
+
+            fmt.format("\n");
+        }
+
+        System.out.println(fmt);
+    }
 }
 
 public class Main {
@@ -75,5 +99,6 @@ public class Main {
         Knapsack k = new Knapsack();
         k.solve();
         k.backSubstitution();
+        k.out();
     }
 }
