@@ -1,0 +1,97 @@
+**Применение копул**
+
+**Кендысь Алексей**
+
+Подключение библиотек
+```{r}
+library("copula")
+library("readxl")
+library("summarytools")
+library("matrixTests")
+library("tseries")
+library("TSstudio")
+library("VineCopula")
+library("rugarch")
+```
+
+Данные
+```{r}
+n = 11
+my_data <- read_excel("data.xlsx")
+ts_plot(my_data)
+my_data[,2:(n - 1)] = apply(my_data[,2:(n - 1)], MARGIN = 2, log)
+my_data[,2:n] = apply(my_data[,2:n], MARGIN = 2, scale)
+my_precovid_data <- my_data[my_data$`Дата` < "2020-01-28", ]
+my_covid_data <- my_data[my_data$`Дата` >= "2020-01-28", ]
+ts_plot(my_precovid_data)
+ts_plot(my_covid_data)
+```
+
+Описательные статистики
+```{r}
+descr(my_precovid_data, order="p")
+descr(my_covid_data, order="p")
+```
+Тест на нормальность данных
+```{r}
+col_jarquebera(my_precovid_data[,2:n])
+col_jarquebera(my_covid_data[,2:n])
+```
+Augmented Dickey-Fuller Test, тест на стационарность
+```{r}
+apply(my_precovid_data[,2:n], MARGIN = 2, adf.test)
+apply(my_covid_data[,2:n], MARGIN = 2, adf.test)
+```
+Phillips-Perron Unit Root Test, тест на стационарность
+```{r}
+apply(my_precovid_data[,2:n], MARGIN = 2, pp.test)
+apply(my_covid_data[,2:n], MARGIN = 2, pp.test)
+```
+KPSS Test, тест на стационарность
+```{r}
+apply(my_precovid_data[,2:n], MARGIN = 2, kpss.test)
+apply(my_covid_data[,2:n], MARGIN = 2, kpss.test)
+```
+Pseudo-observations (псевдо-наблюдения?)
+```{r}
+pseudo_precovid_data = pobs(my_precovid_data[, 2:n])
+pseudo_covid_data = pobs(my_covid_data[, 2:n])
+```
+
+Kendall plots for pre-covid data (графики Кендалла, данные до коронавируса)
+```{r}
+for (i in 1:(n-2)) {
+  BiCopKPlot(pseudo_precovid_data[, i], pseudo_precovid_data[, (n - 1)])
+}
+```
+
+Kendall plots for covid data (графики Кендалла, данные во время коронавируса)
+```{r}
+for (i in 1:(n-2)) {
+  BiCopKPlot(pseudo_covid_data[, i], pseudo_covid_data[, (n - 1)])
+}
+```
+
+GJR-GARCH построение модели
+```{r}
+spec.gjrGARCH = ugarchspec(variance.model=list(model="gjrGARCH", garchOrder=c(1,1)), mean.model=list(armaOrder=c(0,0), include.mean=FALSE), distribution.model="sstd")
+
+gjrGARCH = c()
+for (i in 2:n) {
+  gjrGARCH = append(gjrGARCH, ugarchfit(my_data[, i], spec=spec.gjrGARCH))
+}
+```
+
+Summary of coefficients, значимость коэффициентов
+```{r}
+for (i in 1:(n - 1)) {
+  show((gjrGARCH[[i]])@fit$matcoef)
+}
+```
+
+Checking the serial correlation and ARCH effects in residuals, the Ljung-Box and ARCH-LM tests
+```{r}
+for (i in 1:(n - 1)) {
+  show(gjrGARCH[[i]])
+}
+```
