@@ -1,0 +1,120 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+**Копулы и их свойства**
+
+**Кендысь Алексей**
+
+Подключение библиотек
+```{r}
+library(copula)
+```
+
+Размерность
+```{r}
+n <- 2
+```
+
+Копула независимости
+```{r}
+cInd <- indepCopula(dim = n)
+
+persp(cInd, pCopula, xlab = "u", ylab = "v", zlab = "Copula")
+
+contour(cInd, pCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cInd)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+Нижняя граница Фреше-Хефдинга
+```{r}
+cLowFH <- lowfhCopula(dim = n)
+
+persp(cLowFH, pCopula, xlab = "u", ylab = "v", zlab = "Copula")
+
+contour(cLowFH, pCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cLowFH)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+Верхняя граница Фреше-Хефдинга
+```{r}
+cUpFH <- upfhCopula(dim = n)
+
+persp(cUpFH, pCopula, xlab = "u", ylab = "v", zlab = "Copula")
+
+contour(cUpFH, pCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cUpFH)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+Гауссовская копула
+```{r}
+r <- 0.5
+cNorm <- normalCopula(param = r, dim = n)
+
+persp(cNorm, dCopula, xlab = "u", ylab = "v", zlab = "Density")
+
+contour(cNorm, dCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cNorm)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+t-копула Стьюдента
+```{r}
+r <- 0.5
+dof <- 1
+cStud <- tCopula(param = r, dim = n, df = dof)
+
+persp(cStud, dCopula, xlab = "u", ylab = "v", zlab = "Density")
+
+contour(cStud, dCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cStud)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+Копула Франка
+```{r}
+theta <- 8
+cFr <- frankCopula(param = theta, dim = n)
+
+persp(cFr, dCopula, xlab = "u", ylab = "v", zlab = "Density")
+
+contour(cFr, dCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cFr)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+Копула Гумбеля
+```{r}
+theta <- 4
+cGumb <- gumbelCopula(param = theta, dim = n)
+
+persp(cGumb, dCopula, xlab = "u", ylab = "v", zlab = "Density")
+
+contour(cGumb, dCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cGumb)
+plot(matr, xlab = "u", ylab = "v")
+```
+
+Копула Клейтона
+```{r}
+theta <- 4
+cClayt <- claytonCopula(param = theta, dim = n)
+
+persp(cClayt, dCopula, xlab = "u", ylab = "v", zlab = "Density")
+
+contour(cClayt, dCopula, xlab = "u", ylab = "v")
+
+matr <- rCopula(2000, cClayt)
+plot(matr, xlab = "u", ylab = "v")
+```
