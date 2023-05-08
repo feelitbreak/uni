@@ -12,10 +12,34 @@ library("tseries")
 library("TSstudio")
 library("VineCopula")
 library("rugarch")
+library("pracma")
+library("ggplot2")
+library("forecast")
+library("dplyr")
+library("skewt")
 ```
+
+Функция для нахождения доходности
 ```{r}
 my_log <- function(x) {
-  return(log(x / (x - 1)))
+  return(log(x + 0.1))
+}
+
+get_returns <- function(data) {
+  returns = data
+  n_col = length(data)
+  
+  returns[,2:(n_col - 1)] = apply(returns[,2:(n_col - 1)], MARGIN = 2, log)
+  diff <- returns[-1, 2:(n_col - 1)] - returns[-nrow(returns), 2:(n_col - 1)]
+  returns = returns[-1, ]
+  returns[, 2:(n_col - 1)] = diff
+  
+  returns[,n_col] = apply(returns[,n_col], MARGIN = 2, my_log)
+  
+  returns[,2:n_col] = apply(returns[,2:n_col], MARGIN = 2, detrend)
+  returns[,2:n_col] = apply(returns[,2:n_col], MARGIN = 2, scale)
+  
+  return(returns)
 }
 ```
 
@@ -24,80 +48,112 @@ my_log <- function(x) {
 n = 8
 my_data <- read_excel("data.xlsx")
 ts_plot(my_data)
-my_data[,2:(n - 1)] = apply(my_data[,2:(n - 1)], MARGIN = 2, my_log)
-my_data[,2:n] = apply(my_data[,2:n], MARGIN = 2, scale)
-my_precovid_data <- my_data[my_data$`Дата` < "2020-01-28", ]
-my_covid_data <- my_data[my_data$`Дата` >= "2020-01-28", ]
-ts_plot(my_precovid_data[,1:(n - 1)])
-ts_plot(my_covid_data[,1:(n - 1)])
+my_returns = get_returns(my_data)
+my_precovid_returns <- get_returns(my_data[my_data$`Дата` < "2020-02-25", ])
+my_covid_returns <- get_returns(my_data[my_data$`Дата` >= "2020-02-25", ])
+ts_plot(my_precovid_returns[,1:(n - 1)])
+ts_plot(my_precovid_returns[, c(1, n)])
+ts_plot(my_covid_returns[,1:(n - 1)])
+ts_plot(my_covid_returns[, c(1, n)])
 ```
 
 Описательные статистики
 ```{r}
-descr(my_precovid_data, order="p")
-descr(my_covid_data, order="p")
+descr(my_precovid_returns, order="p")
+descr(my_covid_returns, order="p")
 ```
 Тест на нормальность данных
 ```{r}
-col_jarquebera(my_precovid_data[,2:n])
-col_jarquebera(my_covid_data[,2:n])
+col_jarquebera(my_precovid_returns[,2:n])
+col_jarquebera(my_covid_returns[,2:n])
 ```
 Augmented Dickey-Fuller Test, тест на стационарность
 ```{r}
-apply(my_precovid_data[,2:n], MARGIN = 2, adf.test)
-apply(my_covid_data[,2:n], MARGIN = 2, adf.test)
+apply(my_precovid_returns[,2:n], MARGIN = 2, adf.test)
+apply(my_covid_returns[,2:n], MARGIN = 2, adf.test)
 ```
 Phillips-Perron Unit Root Test, тест на стационарность
 ```{r}
-apply(my_precovid_data[,2:n], MARGIN = 2, pp.test)
-apply(my_covid_data[,2:n], MARGIN = 2, pp.test)
+apply(my_precovid_returns[,2:n], MARGIN = 2, pp.test)
+apply(my_covid_returns[,2:n], MARGIN = 2, pp.test)
 ```
 KPSS Test, тест на стационарность
 ```{r}
-apply(my_precovid_data[,2:n], MARGIN = 2, kpss.test)
-apply(my_covid_data[,2:n], MARGIN = 2, kpss.test)
+apply(my_precovid_returns[,2:n], MARGIN = 2, kpss.test, null="Trend")
+apply(my_covid_returns[,2:n], MARGIN = 2, kpss.test, null="Trend")
 ```
 Pseudo-observations (псевдо-наблюдения?)
 ```{r}
-pseudo_precovid_data = pobs(my_precovid_data[, 2:n])
-pseudo_covid_data = pobs(my_covid_data[, 2:n])
+pseudo_precovid_returns = pobs(my_precovid_returns[, 2:n])
+pseudo_covid_returns = pobs(my_covid_returns[, 2:n])
 ```
 
 Kendall plots for pre-covid data (графики Кендалла, данные до коронавируса)
 ```{r}
 for (i in 1:(n-2)) {
-  BiCopKPlot(pseudo_precovid_data[, i], pseudo_precovid_data[, (n - 1)])
+  BiCopKPlot(pseudo_precovid_returns[, i], pseudo_precovid_returns[, (n - 1)])
 }
 ```
 
 Kendall plots for covid data (графики Кендалла, данные во время коронавируса)
 ```{r}
 for (i in 1:(n-2)) {
-  BiCopKPlot(pseudo_covid_data[, i], pseudo_covid_data[, (n - 1)])
+  BiCopKPlot(pseudo_covid_returns[, i], pseudo_covid_returns[, (n - 1)])
 }
 ```
 
 GJR-GARCH построение модели
 ```{r}
-spec_gjrGARCH = ugarchspec(variance.model=list(model="gjrGARCH", garchOrder=c(1,1)), mean.model=list(armaOrder=c(0,0), include.mean=FALSE), distribution.model="sstd")
+get_spec <- function(data) {
+  get_arma = auto.arima(unlist(my_precovid_returns[, i]), # the time sereis data
+                                  stepwise=FALSE, # explore all models
+                                  seasonal=FALSE, # take into account seasonality
+                                  ic="aic", # information criterion 
+                                  trace=TRUE,# show fitting models
+                        D=0
+                                  )
+  order = arimaorder(get_arma)
+  p = order[1]
+  q = order[3]
+  
+  spec_garch = ugarchspec(variance.model=list(model="gjrGARCH", garchOrder=c(1,1)), mean.model=list(armaOrder=c(p,q), include.mean=FALSE), distribution.model="norm")
+  return(spec_garch)
+}
+```
 
-gjrGARCH = c()
+```{r}
+garch_precovid = c()
 for (i in 2:n) {
-  gjrGARCH <- append(gjrGARCH, ugarchfit(unlist(my_data[, i]), spec=spec_gjrGARCH))
+  garch_precovid <- append(garch_precovid, ugarchfit(unlist(my_precovid_returns[, i]), spec=get_spec(unlist(my_precovid_returns[, i]))))
+}
+
+garch_covid = c()
+for (i in 2:n) {
+  garch_covid <- append(garch_covid, ugarchfit(unlist(my_covid_returns[, i]), spec=get_spec(unlist(my_covid_returns[, i]))))
 }
 ```
 
 Summary of coefficients, значимость коэффициентов
 ```{r}
 for (i in 1:(n - 1)) {
-  show((gjrGARCH[[i]])@fit$matcoef)
+  show((garch_precovid[[i]])@fit$matcoef)
+}
+```
+```{r}
+for (i in 1:(n - 1)) {
+  show((garch_covid[[i]])@fit$matcoef)
 }
 ```
 
 Checking the serial correlation and ARCH effects in residuals, the Ljung-Box and ARCH-LM tests
 ```{r}
 for (i in 1:(n - 1)) {
-  show(gjrGARCH[[i]])
+  show(garch_precovid[[i]])
+}
+```
+```{r}
+for (i in 1:(n - 1)) {
+  show(garch_covid[[i]])
 }
 ```
 
@@ -105,11 +161,10 @@ Plotting residuals and the corresponding pre-covid data
 ```{r}
 res_precovid = c()
 for (i in 1:(n - 1)) {
-  res <- as.numeric(residuals(gjrGARCH[[i]], standardize=TRUE))
-  res_precovid <- cbind(res_precovid, res[1:nrow(my_precovid_data)])
-  plot(my_precovid_data$Дата, res_precovid[, i], type='l', col='red')
+  res_precovid <- cbind(res_precovid, residuals(garch_precovid[[i]], standardize=TRUE))
+  plot(my_precovid_returns$Дата, res_precovid[, i], type='l', col='red')
   par(new=TRUE)
-  plot(my_precovid_data$Дата, unlist(my_precovid_data[, i + 1]), type='l', col='green')
+  plot(my_precovid_returns$Дата, unlist(my_precovid_returns[, i + 1]), type='l', col='green')
 }
 ```
 
@@ -117,29 +172,34 @@ Plotting residuals and the corresponding covid data
 ```{r}
 res_covid = c()
 for (i in 1:(n - 1)) {
-  res <- as.numeric(residuals(gjrGARCH[[i]], standardize=TRUE))
-  res_covid <- cbind(res_covid, res[(nrow(my_precovid_data) + 1):(nrow(my_precovid_data) + nrow(my_covid_data))])
-  plot(my_covid_data$Дата, res_covid[, i], type='l', col='red')
+  res_covid <- cbind(res_covid, residuals(garch_covid[[i]], standardize=TRUE))
+  plot(my_covid_returns$Дата, res_covid[, i], type='l', col='red')
   par(new=TRUE)
-  plot(my_covid_data$Дата, unlist(my_covid_data[, i + 1]), type='l', col='green')
+  plot(my_covid_returns$Дата, unlist(my_covid_returns[, i + 1]), type='l', col='green')
 }
 ```
 
 Plotting volatility
 ```{r}
 for (i in 1:(n - 1)) {
-  show(plot(sigma(gjrGARCH[[i]])))
+  plot(my_precovid_returns$Дата, sigma(garch_precovid[[i]]), type='l', col='black')
+}
+```
+```{r}
+for (i in 1:(n - 1)) {
+  plot(my_covid_returns$Дата, sigma(garch_covid[[i]]), type='l', col='black')
 }
 ```
 
 QQ plot уже не знаю зачем
 ```{r}
 for (i in 1:(n - 1)) {
-  pit=pit(gjrGARCH[[i]]) 
-  hist(pit) # this should be approximately Uniform[0,1]
-  norm=qnorm(pit)
-  hist(norm) # this should be approximately standard normal
-  qqnorm(norm); abline(a=0, b=1) # this is your QQ plot
+  plot(garch_precovid[[i]], which=9)
+}
+```
+```{r}
+for (i in 1:(n - 1)) {
+  plot(garch_covid[[i]], which=9)
 }
 ```
 
@@ -147,15 +207,15 @@ for (i in 1:(n - 1)) {
 
 Корреляция Kendall's Tau, до коронавируса
 ```{r}
-for (i in 2:(n - 1)) {
-  show(cor(my_precovid_data[, n], my_precovid_data[, i], method = "kendall"))
+for (i in 1:(n - 2)) {
+  show(cor(res_precovid[, i], res_precovid[,n - 1], method = "kendall"))
 }
 ```
 
 Корреляция Kendall's Tau, во время коронавируса
 ```{r}
-for (i in 2:(n - 1)) {
-  show(cor(my_covid_data[, n], my_covid_data[, i], method = "kendall"))
+for (i in 1:(n - 2)) {
+  show(cor(res_covid[, i], res_covid[,n - 1], method = "kendall"))
 }
 ```
 
@@ -179,11 +239,4 @@ for (i in 1:(n - 2)) {
 }
 
 show(fitted_covid_copulas)
-```
-
-Goodness-of-fit tests?
-```{r}
-for (i in 1:(n - 2)) {
-  RVineGofTest(pseudo_precovid_data[, c(n - 1, i)],  RVineMatrix(fitted_precovid_copulas[[i]]))
-}
 ```
