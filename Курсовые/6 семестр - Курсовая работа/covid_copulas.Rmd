@@ -25,13 +25,13 @@ get_returns <- function(data) {
   returns = data
   n_col = length(data)
   
-  returns[,2:(n_col - 1)] = apply(returns[,2:(n_col - 1)], MARGIN = 2, log)
-  diff <- returns[-1, 2:(n_col - 1)] - returns[-nrow(returns), 2:(n_col - 1)]
+  returns[, 2:n_col] = apply(returns[, 2:n_col], MARGIN = 2, log)
+  diff <- returns[-1, 2:n_col] - returns[-nrow(returns), 2:n_col]
   returns = returns[-1, ]
-  returns[, 2:(n_col - 1)] = diff
+  returns[, 2:n_col] = diff
   
-  returns[,2:n_col] = apply(returns[,2:n_col], MARGIN = 2, detrend)
-  returns[,2:n_col] = apply(returns[,2:n_col], MARGIN = 2, scale)
+  returns[, 2:n_col] = apply(returns[, 2:n_col], MARGIN = 2, detrend)
+  returns[, 2:n_col] = apply(returns[, 2:n_col], MARGIN = 2, scale)
   
   return(returns)
 }
@@ -39,20 +39,18 @@ get_returns <- function(data) {
 
 Данные
 ```{r}
-n = 8
+n = 9
 
 my_data <- read_excel("data.xlsx")
 ts_plot(my_data)
 
-my_precovid_data = my_data[my_data$`Дата` < "2020-02-25", ]
-my_covid_data = my_data[my_data$`Дата` >= "2020-02-25", ]
+my_precovid_data = my_data[my_data$`Дата` < "2020-01-31", ]
+my_covid_data = my_data[my_data$`Дата` >= "2020-01-31", ]
 my_precovid_returns <- get_returns(my_precovid_data)
 my_covid_returns <- get_returns(my_covid_data)
 
-ts_plot(my_precovid_returns[,1:(n - 1)])
-ts_plot(my_precovid_returns[, c(1, n)])
-ts_plot(my_covid_returns[,1:(n - 1)])
-ts_plot(my_covid_returns[, c(1, n)])
+ts_plot(my_precovid_returns[,1:n])
+ts_plot(my_covid_returns[,1:n])
 ```
 
 Описательные статистики
@@ -88,15 +86,19 @@ pseudo_covid_returns = pobs(my_covid_returns[, 2:n])
 
 Kendall plots for pre-covid data (графики Кендалла, данные до коронавируса)
 ```{r}
-for (i in 1:(n-2)) {
-  BiCopKPlot(pseudo_precovid_returns[, i], pseudo_precovid_returns[, (n - 1)])
+for (i in 1:(n - 1)) {
+  for (j in i:(n - 1)) {
+    BiCopKPlot(pseudo_precovid_returns[, i], pseudo_precovid_returns[, j])
+  }
 }
 ```
 
 Kendall plots for covid data (графики Кендалла, данные во время коронавируса)
 ```{r}
-for (i in 1:(n-2)) {
-  BiCopKPlot(pseudo_covid_returns[, i], pseudo_covid_returns[, (n - 1)])
+for (i in 1:(n - 1)) {
+  for (j in i:(n - 1)) {
+    BiCopKPlot(pseudo_precovid_returns[, i], pseudo_precovid_returns[, j])
+  }
 }
 ```
 
@@ -106,6 +108,7 @@ get_spec <- function(data) {
   get_arma = auto.arima(data, ic="aic", D=0)
   
   order = arimaorder(get_arma)
+  show(order)
   p = order[1]
   q = order[3]
   
@@ -184,7 +187,7 @@ for (i in 1:(n - 1)) {
 }
 ```
 
-QQ plot уже не знаю зачем
+QQ plot
 ```{r}
 for (i in 1:(n - 1)) {
   plot(garch_precovid[[i]], which=9)
@@ -200,24 +203,12 @@ for (i in 1:(n - 1)) {
 
 Корреляция Kendall's Tau, до коронавируса
 ```{r}
-for (i in 2:(n - 1)) {
-  show(cor(my_precovid_data[, i], my_precovid_data[,n], method = "kendall"))
-}
-
-for (i in 1:(n - 2)) {
-  show(cor(res_precovid[, i], res_precovid[,n - 1], method = "kendall"))
-}
+cor(as.matrix(res_precovid), method="kendall")
 ```
 
 Корреляция Kendall's Tau, во время коронавируса
 ```{r}
-for (i in 2:(n - 1)) {
-  show(cor(my_covid_data[, i], my_covid_data[,n], method = "kendall"))
-}
-
-for (i in 1:(n - 2)) {
-  show(cor(res_covid[, i], res_covid[,n - 1], method = "kendall"))
-}
+cor(as.matrix(res_covid), method="kendall")
 ```
 Pseudo-residuals (псевдо-наблюдения?)
 ```{r}
@@ -225,12 +216,17 @@ pseudo_res_precovid = pobs(res_precovid[, 1:(n - 1)])
 pseudo_res_covid = pobs(res_covid[, 1:(n - 1)])
 ```
 
-Подбор подходящей копулы, до коронавируса
+Подбор подходящих копул, до коронавируса
 ```{r}
-fitted_precovid_copulas <- vector(mode="list", length = n - 2)
+fitted_precovid_copulas = c()
+for (i in 1:(n - 1)) {
+  fitted_precovid_copulas[[i]] <- vector(mode="list", length = n - 1)
+}
 
-for (i in 1:(n - 2)) {
-  fitted_precovid_copulas[[i]] = BiCopSelect(pseudo_res_precovid[, n - 1], pseudo_res_precovid[, i], familyset = NA)
+for (i in 1:(n - 1)) {
+  for (j in i:(n - 1)) {
+    fitted_precovid_copulas[[i]][[j]] = BiCopSelect(pseudo_res_precovid[, i], pseudo_res_precovid[, j], familyset = NA)
+  }
 }
 
 show(fitted_precovid_copulas)
@@ -238,10 +234,15 @@ show(fitted_precovid_copulas)
 
 Подбор подходящей копулы, после коронавируса
 ```{r}
-fitted_covid_copulas <- vector(mode="list", length = n - 2)
+fitted_covid_copulas = c()
+for (i in 1:(n - 1)) {
+  fitted_covid_copulas[[i]] <- vector(mode="list", length = n - 1)
+}
 
-for (i in 1:(n - 2)) {
-  fitted_covid_copulas[[i]] = BiCopSelect(pseudo_res_covid[, n - 1], pseudo_res_covid[, i], familyset = NA)
+for (i in 1:(n - 1)) {
+  for (j in i:(n - 1)) {
+    fitted_covid_copulas[[i]][[j]] = BiCopSelect(pseudo_res_covid[, i], pseudo_res_covid[, j], familyset = NA)
+  }
 }
 
 show(fitted_covid_copulas)
@@ -252,11 +253,13 @@ show(fitted_covid_copulas)
 n_observ = nrow(pseudo_res_precovid)
 
 for (i in 1:(n - 2)) {
-  simdata <- BiCopSim(n_observ, fitted_precovid_copulas[[i]])
+  for (j in i:(n - 2)) {
+    simdata <- BiCopSim(n_observ, fitted_precovid_copulas[[i]][[j]])
   
-  plot(as.numeric(pseudo_res_precovid[, n - 1]), as.numeric(pseudo_res_precovid[, i]), main = 'Test dataset x and y', col = "blue")
-  points(simdata[,1], simdata[,2], col = 'red')
-  legend('bottomright', c('Наблюдаемые', 'Сгенерированные'), col = c('blue', 'red'), pch=21)
+    plot(as.numeric(pseudo_res_precovid[, i]), as.numeric(pseudo_res_precovid[, j]), main = sprintf('Test dataset x and y, i = %d, j = %d', i, j), col = "blue")
+    points(simdata[,1], simdata[,2], col = 'red')
+    legend('bottomright', c('Наблюдаемые', 'Сгенерированные'), col = c('blue', 'red'), pch=21)
+  }
 }
 ```
 
@@ -265,10 +268,12 @@ for (i in 1:(n - 2)) {
 n_observ = nrow(pseudo_res_covid)
 
 for (i in 1:(n - 2)) {
-  simdata <- BiCopSim(n_observ, fitted_covid_copulas[[i]])
+  for (j in i:(n - 2)) {
+    simdata <- BiCopSim(n_observ, fitted_covid_copulas[[i]][[j]])
   
-  plot(as.numeric(pseudo_res_covid[, n - 1]), as.numeric(pseudo_res_covid[, i]), main = 'Test dataset x and y', col = "blue")
-  points(simdata[,1], simdata[,2], col = 'red')
-  legend('bottomright', c('Наблюдаемые', 'Сгенерированные'), col = c('blue', 'red'), pch=21)
+    plot(as.numeric(pseudo_res_covid[, i]), as.numeric(pseudo_res_covid[, j]), main = sprintf('Test dataset x and y, i = %d, j = %d', i, j), col = "blue")
+    points(simdata[,1], simdata[,2], col = 'red')
+    legend('bottomright', c('Наблюдаемые', 'Сгенерированные'), col = c('blue', 'red'), pch=21)
+  }
 }
 ```
