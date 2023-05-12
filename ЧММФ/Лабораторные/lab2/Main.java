@@ -35,12 +35,15 @@ record ConvectionDiffusionEquationSolver(int n1, int n2, double h, double tau, d
 
     private double[][] getYSigma0() {
         double[][] res = new double[n2 + 1][n1 + 1];
+        for (double[] row: res) {
+            Arrays.fill(row, Double.NaN);
+        }
         setBoundaryValues(res);
 
-        double gamma = (A * tau) / h;
+        double gamma = - ((A * tau) / h);
         for (int j = 0; j <= n2 - 1; j++) {
-            for (int i = 1; i <= n1 - 1; i++) {
-                res[j + 1][i] = ((1. + gamma) * res[j][i]) - (gamma * res[j][i + 1]);
+            for (int i = 1; i <= n1 - j - 1; i++) {
+                res[j + 1][i] = ((1. - gamma) * res[j][i]) + (gamma * res[j][i + 1]);
             }
         }
 
@@ -49,15 +52,18 @@ record ConvectionDiffusionEquationSolver(int n1, int n2, double h, double tau, d
 
     private double[][] getYSigmaNot0(double sigma) {
         double[][] res = new double[n2 + 1][n1 + 1];
+        for (double[] row: res) {
+            Arrays.fill(row, Double.NaN);
+        }
         setBoundaryValues(res);
 
-        double gamma = (A * tau) / h;
+        double gamma = - ((A * tau) / h);
         for (int j = 0; j <= n2 - 1; j++) {
-            for (int i = 1; i <= n1 - 1; i++) {
-                res[j + 1][i + 1] = (1. - (gamma * sigma)) * res[j + 1][i];
-                res[j + 1][i + 1] -= (1. + (gamma * (1. - sigma))) * res[j][i];
-                res[j + 1][i + 1] += gamma * (1. - sigma) * res[j][i + 1];
-                res[j + 1][i + 1] /= -(gamma * sigma);
+            for (int i = 0; i <= n1 - 1; i++) {
+                res[j + 1][i + 1] = (1. + (gamma * sigma)) * res[j + 1][i];
+                res[j + 1][i + 1] -= (1. - (gamma * (1. - sigma))) * res[j][i];
+                res[j + 1][i + 1] -= gamma * (1. - sigma) * res[j][i + 1];
+                res[j + 1][i + 1] /= gamma * sigma;
             }
         }
 
@@ -109,7 +115,44 @@ class BoundaryValueProblem {
     }
 
     public void out() {
+        Formatter fmt = new Formatter();
 
+        fmt.format("\nТочное решение:\n");
+        outY(fmt, u);
+
+        fmt.format("\nРешение для sigma = %.1f.\n", SIGMA1);
+        fmt.format("Полученное решение:\n");
+        outY(fmt, y1);
+        fmt.format("Вектор невязок:\n");
+        outRes(fmt, res1);
+
+        fmt.format("\nРешение для sigma = %.1f.\n", SIGMA2);
+        fmt.format("Полученное решение:\n");
+        outY(fmt, y2);
+        fmt.format("Вектор невязок:\n");
+        outRes(fmt, res2);
+
+        System.out.println(fmt);
+    }
+
+    private void outY(Formatter fmt, double[][] y) {
+        for (int j = n2; j >= 0; j--) {
+            for (int i = 0; i <= n1; i++) {
+                fmt.format("% 14.7f", y[j][i]);
+            }
+
+            fmt.format("\n");
+        }
+    }
+
+    private void outRes(Formatter fmt, double[][] res) {
+        for (int j = n2; j >= 0; j--) {
+            for (int i = 0; i <= n1; i++) {
+                fmt.format("% 14.7E", res[j][i]);
+            }
+
+            fmt.format("\n");
+        }
     }
 
     private double[][] getResidual(double[][] y) {
