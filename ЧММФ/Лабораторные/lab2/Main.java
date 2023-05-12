@@ -138,7 +138,7 @@ class BoundaryValueProblem {
     private void outY(Formatter fmt, double[][] y) {
         for (int j = n2; j >= 0; j--) {
             for (int i = 0; i <= n1; i++) {
-                fmt.format("% 14.7f", y[j][i]);
+                fmt.format("% 12.5f", y[j][i]);
             }
 
             fmt.format("\n");
@@ -148,7 +148,7 @@ class BoundaryValueProblem {
     private void outRes(Formatter fmt, double[][] res) {
         for (int j = n2; j >= 0; j--) {
             for (int i = 0; i <= n1; i++) {
-                fmt.format("% 14.7E", res[j][i]);
+                fmt.format("% 12.5E", res[j][i]);
             }
 
             fmt.format("\n");
