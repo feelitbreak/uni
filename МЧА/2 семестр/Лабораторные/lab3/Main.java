@@ -1,196 +1,214 @@
 import java.util.*;
 
-class Functions {
-    public static double f(double x, double y) {
-        return Math.abs((x * x) - (y * y));
+class F {
+    public static double getValue(double t, double u) {
+        return (Math.pow(u, 2.) * Math.log(t) - u) / t;
     }
 
-    public static double psi1(double y) {
-        return 1 - Math.pow(y, 2.);
-    }
-
-    public static double psi2(double y) {
-        return Math.exp(y) * (1 - Math.pow(y, 2.));
-    }
-
-    public static double psi3(double x) {
-        return 1 - Math.pow(x, 2.);
-    }
-
-    public static double psi4(double x) {
-        return 1 - Math.pow(x, 2.);
+    public static double getDuValue(double t, double u) {
+        return (2. * u * Math.log(t) - 1) / t;
     }
 }
 
-record PoissonEquationSolver(int n1, int n2, double h1, double h2, double eps, double[] x1, double[] x2) {
-    public double[][] getY() {
-        double[][] res = new double[n1 + 1][n2 + 1];
-        setBoundaryValues(res);
-        setInitialValues(res);
+class U {
+    public static double getValue(double t) {
+        return 1. / (Math.log(t) + 1);
+    }
+}
 
-        int k = 0;
-        double checkStop;
-        do {
-            checkStop = 0;
+class BackwardEulerMethod {
+    private final int n;
+    private final double tau;
+    private final double[] t;
+    private final double u0;
 
-            for (int i = 1; i <= n1 - 1; i++) {
-                for (int j = 1; j <= n2 - 1; j++) {
-                    double old = res[i][j];
+    public BackwardEulerMethod(int n, double tau, double[] t, double u0) {
+        this.n = n;
+        this.tau = tau;
+        this.t = t;
+        this.u0 = u0;
+    }
 
-                    res[i][j] = ((res[i + 1][j] + res[i - 1][j]) / Math.pow(h1, 2.));
-                    res[i][j] += ((res[i][j + 1] + res[i][j - 1]) / Math.pow(h2, 2.));
-                    res[i][j] += Functions.f(x1[i], x2[j]);
-                    res[i][j] /= (2. / Math.pow(h1, 2.)) + (2. / Math.pow(h2, 2.));
+    public double[] getY() {
+        double[] res = new double[this.n + 1];
+        res[0] = this.u0;
 
-                    if (Math.abs(res[i][j] - old) > checkStop) {
-                        checkStop = Math.abs(res[i][j] - old);
-                    }
-                }
-            }
-
-            k++;
-        } while(checkStop > eps);
+        for (int i = 1; i <= this.n; i++) {
+            res[i] = newtonMethod(res[i - 1], t[i]);
+        }
 
         return res;
     }
 
-    private void setBoundaryValues(double[][] y) {
-        for (int j = 0; j <= n2; j++) {
-            y[0][j] = Functions.psi1(x2[j]);
+    public double newtonMethod(double yJ, double t) {
+        final double lteDeg = 2.;
+        double eps = Math.pow(this.tau, lteDeg + 1.);
+
+        double nwt1 = yJ;
+        double nwt2 = phiNewton(nwt1, yJ, t);
+        while (Math.abs(nwt2 - nwt1) > eps) {
+            nwt1 = nwt2;
+            nwt2 = phiNewton(nwt2, yJ, t);
         }
 
-        for (int j = 0; j <= n2; j++) {
-            y[n1][j] = Functions.psi2(x2[j]);
-        }
-
-        for (int i = 0; i <= n1; i++) {
-            y[i][0] = Functions.psi3(x1[i]);
-        }
-
-        for (int i = 0; i <= n1; i++) {
-            y[i][n2] = Functions.psi4(x1[i]);
-        }
+        return nwt2;
     }
 
-    private void setInitialValues(double[][] y) {
-        for (int i = 1; i <= n1 - 1; i++) {
-            for (int j = 1; j <= n2 - 1; j++) {
-                y[i][j] = Functions.f(x1[i], x2[j]);
-            }
-        }
+    private double phiNewton(double y, double yJ, double t) {
+        return y - (y - yJ - this.tau * F.getValue(t, y)) / (1 - this.tau * F.getDuValue(t, y));
     }
 }
 
-class DirichletProblem {
-    private static final double A = -1.;
-    private static final double B = 1.;
-    private static final double C = -1.;
-    private static final double D = 1.;
-    private static final double H1 = 0.05;
-    private static final double H2 = 0.1;
-    private static final double EPS = Math.max(Math.pow(H1, 3.), Math.pow(H2, 3.));
-    private static final double H1_EXACT = 0.005;
-    private static final double H2_EXACT = 0.01;
-    private static final double EPS_EXACT = Math.max(Math.pow(H1_EXACT, 3.), Math.pow(H2_EXACT, 3.));
-    private final int n1;
-    private final int n2;
-    private final int n1Exact;
-    private final int n2Exact;
-    private final double[] x1;
-    private final double[] x2;
-    private final double[] x1Exact;
-    private final double[] x2Exact;
-    private final double[][] u;
-    private double[][] y;
-    private double[][] res;
+class RungeKuttaMethod {
+    public static double[] getY(int n, double tau, double[] t, double u0) {
+        double[] res = new double[n + 1];
+        res[0] = u0;
 
-    public DirichletProblem() {
-        n1 = (int) ((B - A) / H1);
-        n2 = (int) ((D - C) / H2);
-        n1Exact = (int) ((B - A) / H1_EXACT);
-        n2Exact = (int) ((D - C) / H2_EXACT);
+        double k1, k2;
+        for (int i = 1; i <= n; i++) {
+            k1 = F.getValue(t[i - 1], res[i - 1]);
+            k2 = F.getValue(t[i], res[i - 1] + tau * k1);
+            res[i] = res[i - 1] + 0.5 * tau * (k1 + k2);
+        }
 
-        x1 = getX(H1, n1, A);
-        x2 = getX(H2, n2, C);
-        x1Exact = getX(H1_EXACT, n1Exact, A);
-        x2Exact = getX(H2_EXACT, n2Exact, C);
+        return res;
+    }
+}
 
-        u = getExact();
+class IncreasingAccuracyMethod {
+    public static double[] getY(int n, double tau, double[] t, double u0) {
+        double[] res = new double[n + 1];
+        res[0] = u0;
+
+        double y12;
+        for (int i = 1; i <= n; i++) {
+            y12 = res[i - 1] + 0.5 * tau * F.getValue(t[i - 1], res[i - 1]);
+            res[i] = res[i - 1] + tau * F.getValue(t[i - 1] + 0.5 * tau, y12);
+        }
+
+        return res;
+    }
+}
+
+class MultistepMethod {
+    public static double[] getY(int n, double tau, double[] t, double u0) {
+        double[] res = new double[n + 1];
+
+        res[0] = u0;
+        res[1] = MultistepMethod.getYIncreasingMethod(tau, t[0], res[0]);
+        res[2] = MultistepMethod.getYIncreasingMethod(tau, t[1], res[1]);
+
+        for (int i = 3; i <= n; i++) {
+            res[i] = res[i - 1] + (tau / 12.) *
+                    (23. * F.getValue(t[i - 1], res[i - 1]) -
+                            16. * F.getValue(t[i - 2], res[i - 2]) +
+                            5. * F.getValue(t[i - 3], res[i - 3]));
+        }
+
+        return res;
+    }
+
+    private static double getYIncreasingMethod(double tau, double t, double y) {
+        double y12;
+        double y14;
+        double y11;
+        double res;
+
+        y14 = y + (tau / 4.) * F.getValue(t, y);
+        y12 = y + (tau / 2.) * F.getValue(t + (tau / 4.), y14);
+        y11 = y + tau * F.getValue(t + (tau / 2.), y12);
+        res = y + (tau / 6.) * (F.getValue(t, y) + 4. * F.getValue(t + (tau / 2.), y12) + F.getValue(t + tau, y11));
+
+        return res;
+    }
+}
+
+class CauchyProblem {
+    private final static int N = 10;
+    private final static double A = 1.;
+    private final static double B = 2.;
+    private final static double U0 = 1.;
+    private final double tau;
+    private final double[] t;
+    private final double[] u;
+    private double[] y1;
+    private double[] y2;
+    private double[] y3;
+    private double[] y4;
+    private double[] res1;
+    private double[] res2;
+    private double[] res3;
+    private double[] res4;
+
+
+    public CauchyProblem() {
+        this.tau = (B - A) / N;
+
+        this.t = new double[N + 1];
+        this.t[0] = A;
+        for (int i = 1; i <= N; i++) {
+            this.t[i] = this.t[i - 1] + this.tau;
+        }
+
+        this.u = new double[N + 1];
+        for (int i = 0; i <= N; i++) {
+            this.u[i] = U.getValue(this.t[i]);
+        }
     }
 
     public void solve() {
-        PoissonEquationSolver peSolver = new PoissonEquationSolver(n1, n2, H1, H2, EPS, x1, x2);
-        y = peSolver.getY();
-        res = getResidual(y);
+        BackwardEulerMethod bem = new BackwardEulerMethod(N, this.tau, this.t, U0);
+        this.y1 = bem.getY();
+        this.res1 = this.getResidual(this.y1);
+
+        this.y2 = RungeKuttaMethod.getY(N, this.tau, this.t, U0);
+        this.res2 = this.getResidual(this.y2);
+
+        this.y3 = IncreasingAccuracyMethod.getY(N, this.tau, this.t, U0);
+        this.res3 = this.getResidual(this.y3);
+
+        this.y4 = MultistepMethod.getY(N, this.tau, this.t, U0);
+        this.res4 = this.getResidual(this.y4);
     }
 
-    public void out() {
+    public void outResult() {
         Formatter fmt = new Formatter();
 
-        fmt.format("\n\"Точное\" решение (этот же метод с шагами 0.005 и 0.01):\n");
-        outY(fmt, u);
+        fmt.format("Точное решение уравнения:\n");
+        for (int i = 0; i <= N; i++) {
+            fmt.format("%.7f\n", this.u[i]);
+        }
 
-        fmt.format("\nПолученное решение:\n");
-        outY(fmt, y);
-        fmt.format("Вектор невязок:\n");
-        outRes(fmt, res);
+        fmt.format("\nЗадание 1. Неявный метод Эйлера.\n");
+        this.outYAndRes(fmt, this.y1, this.res1);
+
+        fmt.format("\nЗадание 2. Метод Рунге-Кутта.\n");
+        this.outYAndRes(fmt, this.y2, this.res2);
+
+        fmt.format("\nЗадание 3. Метод последовательного повышения порядка точности.\n");
+        this.outYAndRes(fmt, this.y3, this.res3);
+
+        fmt.format("\nЗадание 4. Экстраполяционный метод Адамса.\n");
+        this.outYAndRes(fmt, this.y4, this.res4);
 
         System.out.println(fmt);
     }
 
-    private void outY(Formatter fmt, double[][] y) {
-        for (int j = 0; j <= n2; j++) {
-            for (int i = n1; i >= 0; i--) {
-                fmt.format("% 14.7f", y[i][j]);
-            }
-
-            fmt.format("\n");
+    private void outYAndRes(Formatter fmt, double[] y, double[] res) {
+        fmt.format("Полученное решение:\n");
+        for (int i = 0; i <= N; i++) {
+            fmt.format("%.7f\n", y[i]);
+        }
+        fmt.format("Вектор невязок:\n");
+        for (int i = 0; i <= N; i++) {
+            fmt.format("%E\n", res[i]);
         }
     }
 
-    private void outRes(Formatter fmt, double[][] res) {
-        for (int j = 0; j <= n2; j++) {
-            for (int i = n1; i >= 0; i--) {
-                fmt.format("% 14.7E", res[i][j]);
-            }
-
-            fmt.format("\n");
-        }
-    }
-
-    private double[][] getResidual(double[][] y) {
-        double[][] res = new double[n1 + 1][n2 + 1];
-
-        for (int i = 0; i <= n1; i++) {
-            for (int j = 0; j <= n2; j++) {
-                res[i][j] = Math.abs(u[i][j] - y[i][j]);
-            }
-        }
-
-        return res;
-    }
-
-    private double[][] getExact() {
-        double[][] res = new double[n1 + 1][n2 + 1];
-        double[][] fullRes;
-
-        PoissonEquationSolver peSolver = new PoissonEquationSolver
-                (n1Exact, n2Exact, H1_EXACT, H2_EXACT, EPS_EXACT, x1Exact, x2Exact);
-        fullRes = peSolver.getY();
-
-        for (int i = 0, k = 0; i <= n1Exact; i += n1Exact / n1, k++) {
-            for (int j = 0, s = 0; j <= n2Exact; j += n2Exact / n2, s++) {
-                res[k][s] = fullRes[i][j];
-            }
-        }
-
-        return res;
-    }
-
-    private double[] getX(double h, int n, double a) {
-        double[] res = new double[n + 1];
-        for (int i = 0; i <= n; i++) {
-            res[i] = a + (i * h);
+    private double[] getResidual(double[] y) {
+        double[] res = new double[N + 1];
+        for (int i = 0; i <= N; i++) {
+            res[i] = Math.abs(this.u[i] - y[i]);
         }
 
         return res;
@@ -200,8 +218,8 @@ class DirichletProblem {
 public class Main {
 
     public static void main(String[] args) {
-        DirichletProblem dp = new DirichletProblem();
-        dp.solve();
-        dp.out();
+        CauchyProblem cp = new CauchyProblem();
+        cp.solve();
+        cp.outResult();
     }
 }
