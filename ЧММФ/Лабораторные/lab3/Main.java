@@ -162,11 +162,11 @@ class DirichletProblem {
 
         fmt.format("\n\"Точное\" решение (этот же метод с шагами 0.005 и 0.01):\n");
         outY(fmt, u);
-        fmt.format("Количество итераций метод Зейделя: %d.\n", kExact);
+        fmt.format("Количество итераций метода Зейделя: %d.\n", kExact);
 
         fmt.format("\nПолученное решение:\n");
         outY(fmt, y);
-        fmt.format("Количество итераций метод Зейделя: %d.\n", k);
+        fmt.format("Количество итераций метода Зейделя: %d.\n", k);
         fmt.format("Вектор невязок:\n");
         outRes(fmt, res);
 
