@@ -1,0 +1,18 @@
+reset;
+model lab8_P.mod;
+data lab8_3.dat;
+option solver cplex;
+
+solve;
+display P;
+display v;
+
+
+reset;
+model lab8_Q.mod;
+data lab8_3.dat;
+option solver cplex;
+
+solve;
+display Q;
+display v;
