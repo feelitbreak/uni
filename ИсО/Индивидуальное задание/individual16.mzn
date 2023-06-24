@@ -13,8 +13,20 @@ constraint Numbers[6] = abs(Numbers[9] - Numbers[10]);
 
 solve satisfy;
 
-output ["   ", show(Numbers[1]), "\n",
+output ["Полученный треугольник:", "\n",
+        "   ", show(Numbers[1]), "\n",
         "  ", show(Numbers[2]), " ", show(Numbers[3]), "\n",
         " ", show(Numbers[4]), " ", show(Numbers[5]), " ", show(Numbers[6]), "\n",
         show(Numbers[7]), " ", show(Numbers[8]), " ", show(Numbers[9]), " ", show(Numbers[10]), "\n"];
         
+output ["Решение криптоарифметической задачи:", "\n",
+        "A = ", show(Numbers[1]), "\n",
+        "B = ", show(Numbers[2]), "\n",
+        "C = ", show(Numbers[3]), "\n",
+        "D = ", show(Numbers[4]), "\n",
+        "E = ", show(Numbers[5]), "\n",
+        "F = ", show(Numbers[6]), "\n",
+        "G = ", show(Numbers[7]), "\n",
+        "H = ", show(Numbers[8]), "\n",
+        "I = ", show(Numbers[9]), "\n",
+        "J = ", show(Numbers[10]), "\n"];
